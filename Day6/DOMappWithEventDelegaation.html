@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Todo App</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      input {
+        padding: 8px;
+        width: 250px;
+      }
+
+      #addBtn {
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      ul {
+        margin-top: 20px;
+        padding: 0;
+      }
+
+      li {
+        list-style: none;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .task-text {
+        cursor: pointer;
+        flex: 1;
+      }
+
+      .completed {
+        text-decoration: line-through;
+        color: gray;
+      }
+
+      .delete-btn {
+        margin-left: 10px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Todo App</h1>
+
+    <input type="text" id="taskInput" placeholder="Enter task" />
+
+    <button id="addBtn">Add Task</button>
+
+    <ul id="taskList"></ul>
+
+    <script>
+      // DOM Elements
+      const input = document.getElementById("taskInput");
+
+      const addBtn = document.getElementById("addBtn");
+
+      const taskList = document.getElementById("taskList");
+
+      // Add Task
+      addBtn.addEventListener("click", () => {
+        const taskText = input.value.trim();
+
+        // Prevent empty tasks
+        if (!taskText) return;
+
+        // Create LI
+        const li = document.createElement("li");
+
+        // Add HTML inside LI
+        li.innerHTML = `
+        <span class="task-text">${taskText}</span>
+        <button class="delete-btn">Delete</button>
+      `;
+
+        // Append to UL
+        taskList.appendChild(li);
+
+        // Clear input
+        input.value = "";
+      });
+
+      // Event Delegation
+      taskList.addEventListener("click", (e) => {
+        // DELETE TASK
+        if (e.target.classList.contains("delete-btn")) {
+          e.target.parentElement.remove();
+
+          return;
+        }
+
+        // TOGGLE COMPLETE
+        if (e.target.classList.contains("task-text")) {
+          e.target.classList.toggle("completed");
+        }
+      });
+    </script>
+  </body>
+</html>
