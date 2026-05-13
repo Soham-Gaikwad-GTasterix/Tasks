@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Debug Broken Script Using Breakpoints</title>
+  </head>
+
+  <body>
+    <script>
+      function divide(a, b) {
+        if (b === 0) {
+          throw new Error("Division by zero");
+        }
+
+        return a / b;
+      }
+
+      function calculate() {
+        const value = divide(10, 0);
+
+        console.log(value);
+      }
+
+      calculate();
+    </script>
+  </body>
+</html>
