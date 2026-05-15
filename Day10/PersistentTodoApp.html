@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>Persistent Todo App</title>
+
+    <style>
+      body {
+        font-family: Arial;
+        padding: 20px;
+      }
+
+      input,
+      select {
+        padding: 8px;
+        margin-right: 10px;
+      }
+
+      li {
+        margin: 10px 0;
+      }
+
+      .completed {
+        text-decoration: line-through;
+        color: gray;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Todo App</h1>
+
+    <input type="text" id="taskInput" placeholder="Enter task" />
+
+    <button id="addBtn">Add</button>
+
+    <input type="text" id="searchInput" placeholder="Search tasks" />
+
+    <select id="sortSelect">
+      <option value="asc">A-Z</option>
+
+      <option value="desc">Z-A</option>
+    </select>
+
+    <ul id="taskList"></ul>
+
+    <script>
+      let todos = [];
+
+      const input = document.getElementById("taskInput");
+
+      const addBtn = document.getElementById("addBtn");
+
+      const taskList = document.getElementById("taskList");
+
+      const searchInput = document.getElementById("searchInput");
+
+      const sortSelect = document.getElementById("sortSelect");
+
+      // Load from storage
+      function loadTodos() {
+        const stored = localStorage.getItem("todos");
+
+        if (stored) {
+          todos = JSON.parse(stored);
+        }
+
+        renderTodos();
+      }
+
+      // Save to storage
+      function saveTodos() {
+        localStorage.setItem("todos", JSON.stringify(todos));
+      }
+
+      // Render UI
+      function renderTodos() {
+        taskList.innerHTML = "";
+
+        const fragment = document.createDocumentFragment();
+
+        let filteredTodos = [...todos];
+
+        // Search filter
+        const searchText = searchInput.value.toLowerCase();
+
+        filteredTodos = filteredTodos.filter((todo) =>
+          todo.text.toLowerCase().includes(searchText),
+        );
+
+        // Sorting
+        filteredTodos.sort((a, b) => {
+          if (sortSelect.value === "asc") {
+            return a.text.localeCompare(b.text);
+          }
+
+          return b.text.localeCompare(a.text);
+        });
+
+        filteredTodos.forEach((todo) => {
+          const li = document.createElement("li");
+
+          li.innerHTML = `
+      <span class="
+        task-text
+        ${todo.completed ? "completed" : ""}
+      ">
+        ${todo.text}
+      </span>
+
+      <button class="delete-btn">
+        Delete
+      </button>
+    `;
+
+          li.dataset.id = todo.id;
+
+          fragment.appendChild(li);
+        });
+
+        taskList.appendChild(fragment);
+      }
+
+      // Add Todo
+      addBtn.addEventListener("click", () => {
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        todos.push({
+          id: Date.now(),
+          text,
+          completed: false,
+        });
+
+        input.value = "";
+
+        saveTodos();
+
+        renderTodos();
+      });
+
+      // Event Delegation
+      taskList.addEventListener("click", (e) => {
+        const li = e.target.closest("li");
+
+        const id = Number(li.dataset.id);
+
+        const todo = todos.find((t) => t.id === id);
+
+        // Delete
+        if (e.target.classList.contains("delete-btn")) {
+          todos = todos.filter((t) => t.id !== id);
+        }
+
+        // Toggle complete
+        if (e.target.classList.contains("task-text")) {
+          todo.completed = !todo.completed;
+        }
+
+        saveTodos();
+
+        renderTodos();
+      });
+
+      // Search filter
+      searchInput.addEventListener("input", renderTodos);
+
+      // Sorting
+      sortSelect.addEventListener("change", renderTodos);
+
+      // Initial Load
+      loadTodos();
+    </script>
+  </body>
+</html>
