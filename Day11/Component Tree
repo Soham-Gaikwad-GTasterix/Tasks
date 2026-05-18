@@ -1,0 +1,18 @@
+hospital-ui
+    ├───node_modules
+    ├───public
+    ├───src
+    │   ├───assets
+    │   ├───components
+    │   │   ├───Button.jsx
+    │   │   ├───Card.jsx
+    │   │   └───Layout.jsx
+    │   ├───App.css
+    │   ├───App.jsx
+    │   ├───index.css
+    │   └───main.jsx
+    ├───eslint.config.js
+    ├───index.html
+    ├───package-lock.json
+    ├───package.json
+    └───vite.config.js
