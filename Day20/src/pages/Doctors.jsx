@@ -1,49 +1,21 @@
 import {
-
   useState
-
 } from "react";
 
-import Navbar
-from "../components/Navbar";
-
-import Loader
-from "../components/Loader";
-
-import useDoctors
-from "../hooks/useDoctors";
-
+import Navbar from "../components/Navbar";
+import Loader from "../components/Loader";
+import useDoctors from "../hooks/useDoctors";
 
 function Doctors() {
 
-  /*
-  =====================================
-  CUSTOM HOOK
-  =====================================
-  */
-
   const {
-
     doctors,
-
     loading,
-
     error,
-
     addDoctor,
-
     deleteDoctor,
-
     updateDoctor
-
   } = useDoctors();
-
-
-  /*
-  =====================================
-  STATES
-  =====================================
-  */
 
   const [isModalOpen,
     setIsModalOpen] =
@@ -57,33 +29,36 @@ function Doctors() {
     setDoctorEmail] =
       useState("");
 
+  const [specialization,
+    setSpecialization] =
+      useState("");
+
+  const [experience,
+    setExperience] =
+      useState("");
+
+  const [department,
+    setDepartment] =
+      useState("");
+
+  const [qualification,
+    setQualification] =
+      useState("");
+
+  const [phone,
+    setPhone] =
+      useState("");
+
   const [editingDoctor,
     setEditingDoctor] =
       useState(null);
 
-
-  /*
-  =====================================
-  LOADING
-  =====================================
-  */
-
   if (loading) {
-
     return <Loader />;
   }
 
-
-  /*
-  =====================================
-  ERROR
-  =====================================
-  */
-
   if (error) {
-
     return (
-
       <div
         className="
           text-red-500
@@ -95,10 +70,8 @@ function Doctors() {
       >
         {error}
       </div>
-
     );
   }
-
 
   return (
 
@@ -111,14 +84,8 @@ function Doctors() {
 
       <Navbar />
 
+      <div className="p-10">
 
-      <div
-        className="
-          p-10
-        "
-      >
-
-        {/* HEADER */}
         <div
           className="
             flex
@@ -138,25 +105,32 @@ function Doctors() {
             Doctors
           </h1>
 
-
           <button
 
-            onClick={() =>
+            onClick={() => {
 
-              setIsModalOpen(true)
+              setEditingDoctor(null);
 
-            }
+              setDoctorName("");
+              setDoctorEmail("");
+              setSpecialization("");
+              setExperience("");
+              setDepartment("");
+              setQualification("");
+              setPhone("");
+
+              setIsModalOpen(true);
+
+            }}
 
             className="
               bg-green-500
               hover:bg-green-600
-              transition-all
               text-white
               px-6
               py-4
               rounded-2xl
               font-bold
-              shadow-lg
             "
           >
             Add Doctor
@@ -164,217 +138,243 @@ function Doctors() {
 
         </div>
 
+        {isModalOpen && (
 
-        {/* MODAL */}
-        {
-          isModalOpen && (
+          <div
+            className="
+              fixed
+              inset-0
+              bg-black/50
+              flex
+              items-center
+              justify-center
+              z-50
+            "
+          >
 
             <div
               className="
-                fixed
-                inset-0
-                bg-black/50
-                flex
-                items-center
-                justify-center
-                z-50
+                bg-white
+                rounded-3xl
+                p-8
+                w-full
+                max-w-2xl
+                max-h-[90vh]
+                overflow-y-auto
               "
             >
 
-              <div
+              <h2
                 className="
-                  bg-white
-                  rounded-3xl
-                  shadow-2xl
-                  p-8
-                  w-full
-                  max-w-lg
+                  text-4xl
+                  font-bold
+                  text-green-700
+                  mb-8
                 "
               >
+                {
+                  editingDoctor
+                    ? "Update Doctor"
+                    : "Add Doctor"
+                }
+              </h2>
 
-                <h2
+              <input
+                type="text"
+                placeholder="Doctor Name"
+                value={doctorName}
+                onChange={(e)=>
+                  setDoctorName(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full border
+                  p-4 rounded-xl
+                  mb-5
+                "
+              />
+
+              <input
+                type="email"
+                placeholder="Doctor Email"
+                value={doctorEmail}
+                onChange={(e)=>
+                  setDoctorEmail(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full border
+                  p-4 rounded-xl
+                  mb-5
+                "
+              />
+
+              <input
+                type="text"
+                placeholder="Specialization"
+                value={specialization}
+                onChange={(e)=>
+                  setSpecialization(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full border
+                  p-4 rounded-xl
+                  mb-5
+                "
+              />
+
+              <input
+                type="text"
+                placeholder="Experience"
+                value={experience}
+                onChange={(e)=>
+                  setExperience(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full border
+                  p-4 rounded-xl
+                  mb-5
+                "
+              />
+
+              <input
+                type="text"
+                placeholder="Department"
+                value={department}
+                onChange={(e)=>
+                  setDepartment(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full border
+                  p-4 rounded-xl
+                  mb-5
+                "
+              />
+
+              <input
+                type="text"
+                placeholder="Qualification"
+                value={qualification}
+                onChange={(e)=>
+                  setQualification(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full border
+                  p-4 rounded-xl
+                  mb-5
+                "
+              />
+
+              <input
+                type="text"
+                placeholder="Phone Number"
+                value={phone}
+                onChange={(e)=>
+                  setPhone(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full border
+                  p-4 rounded-xl
+                  mb-8
+                "
+              />
+
+              <div className="flex gap-4">
+
+                <button
+
+                  onClick={() => {
+
+                    const doctorData = {
+
+                      name: doctorName,
+                      email: doctorEmail,
+                      specialization,
+                      experience,
+                      department,
+                      qualification,
+                      phone
+
+                    };
+
+                    if (
+                      editingDoctor
+                    ) {
+
+                      updateDoctor({
+
+                        ...editingDoctor,
+
+                        ...doctorData
+
+                      });
+
+                    } else {
+
+                      addDoctor(
+                        doctorData
+                      );
+
+                    }
+
+                    setIsModalOpen(
+                      false
+                    );
+
+                  }}
+
                   className="
-                    text-4xl
+                    flex-1
+                    bg-green-500
+                    text-white
+                    py-4
+                    rounded-2xl
                     font-bold
-                    text-green-700
-                    mb-8
                   "
                 >
-                  {
-                    editingDoctor
+                  Save
+                </button>
 
-                      ? "Update Doctor"
+                <button
 
-                      : "Add Doctor"
-                  }
-                </h2>
-
-
-                {/* NAME */}
-                <input
-
-                  type="text"
-
-                  placeholder="Doctor Name"
-
-                  value={doctorName}
-
-                  onChange={(e) =>
-
-                    setDoctorName(
-                      e.target.value
+                  onClick={() =>
+                    setIsModalOpen(
+                      false
                     )
-
                   }
 
                   className="
-                    w-full
-                    border
-                    border-gray-300
-                    p-4
-                    rounded-xl
-                    mb-5
-                    outline-none
-                  "
-                />
-
-
-                {/* EMAIL */}
-                <input
-
-                  type="email"
-
-                  placeholder="Doctor Email"
-
-                  value={doctorEmail}
-
-                  onChange={(e) =>
-
-                    setDoctorEmail(
-                      e.target.value
-                    )
-
-                  }
-
-                  className="
-                    w-full
-                    border
-                    border-gray-300
-                    p-4
-                    rounded-xl
-                    mb-8
-                    outline-none
-                  "
-                />
-
-
-                {/* BUTTONS */}
-                <div
-                  className="
-                    flex
-                    gap-4
+                    flex-1
+                    bg-red-500
+                    text-white
+                    py-4
+                    rounded-2xl
+                    font-bold
                   "
                 >
-
-                  <button
-
-                    onClick={() => {
-
-                      if (
-                        editingDoctor
-                      ) {
-
-                        updateDoctor({
-
-                          ...editingDoctor,
-
-                          name: doctorName,
-
-                          email: doctorEmail
-
-                        });
-
-                      } else {
-
-                        addDoctor({
-
-                          name: doctorName,
-
-                          email: doctorEmail
-
-                        });
-
-                      }
-
-
-                      setDoctorName("");
-
-                      setDoctorEmail("");
-
-                      setEditingDoctor(
-                        null
-                      );
-
-                      setIsModalOpen(
-                        false
-                      );
-
-                    }}
-
-                    className="
-                      flex-1
-                      bg-green-500
-                      hover:bg-green-600
-                      transition-all
-                      text-white
-                      py-4
-                      rounded-2xl
-                      font-bold
-                    "
-                  >
-                    Save
-                  </button>
-
-
-                  <button
-
-                    onClick={() => {
-
-                      setIsModalOpen(
-                        false
-                      );
-
-                      setEditingDoctor(
-                        null
-                      );
-
-                    }}
-
-                    className="
-                      flex-1
-                      bg-red-500
-                      hover:bg-red-600
-                      transition-all
-                      text-white
-                      py-4
-                      rounded-2xl
-                      font-bold
-                    "
-                  >
-                    Cancel
-                  </button>
-
-                </div>
+                  Cancel
+                </button>
 
               </div>
 
             </div>
 
-          )
-        }
+          </div>
 
+        )}
 
-        {/* DOCTOR GRID */}
         <div
           className="
             grid
@@ -396,9 +396,6 @@ function Doctors() {
                   rounded-3xl
                   shadow-xl
                   p-6
-                  hover:scale-105
-                  transition-all
-                  duration-300
                 "
               >
 
@@ -411,22 +408,60 @@ function Doctors() {
                   {doctor.name}
                 </h1>
 
-
                 <p
                   className="
-                    mt-3
                     text-gray-500
+                    mt-2
                   "
                 >
                   {doctor.email}
                 </p>
 
+                <div
+                  className="
+                    mt-4
+                    space-y-2
+                    text-gray-600
+                  "
+                >
+
+                  <p>
+                    Specialization:
+                    {" "}
+                    {doctor.specialization}
+                  </p>
+
+                  <p>
+                    Experience:
+                    {" "}
+                    {doctor.experience}
+                  </p>
+
+                  <p>
+                    Department:
+                    {" "}
+                    {doctor.department}
+                  </p>
+
+                  <p>
+                    Qualification:
+                    {" "}
+                    {doctor.qualification}
+                  </p>
+
+                  <p>
+                    Phone:
+                    {" "}
+                    {doctor.phone}
+                  </p>
+
+                </div>
 
                 <div
                   className="
                     flex
                     gap-4
-                    mt-5
+                    mt-6
                   "
                 >
 
@@ -439,11 +474,31 @@ function Doctors() {
                       );
 
                       setDoctorName(
-                        doctor.name
+                        doctor.name || ""
                       );
 
                       setDoctorEmail(
-                        doctor.email
+                        doctor.email || ""
+                      );
+
+                      setSpecialization(
+                        doctor.specialization || ""
+                      );
+
+                      setExperience(
+                        doctor.experience || ""
+                      );
+
+                      setDepartment(
+                        doctor.department || ""
+                      );
+
+                      setQualification(
+                        doctor.qualification || ""
+                      );
+
+                      setPhone(
+                        doctor.phone || ""
                       );
 
                       setIsModalOpen(
@@ -455,8 +510,6 @@ function Doctors() {
                     className="
                       flex-1
                       bg-blue-500
-                      hover:bg-blue-600
-                      transition-all
                       text-white
                       py-3
                       rounded-xl
@@ -465,22 +518,17 @@ function Doctors() {
                     Update
                   </button>
 
-
                   <button
 
                     onClick={() =>
-
                       deleteDoctor(
                         doctor.id
                       )
-
                     }
 
                     className="
                       flex-1
                       bg-red-500
-                      hover:bg-red-600
-                      transition-all
                       text-white
                       py-3
                       rounded-xl
@@ -501,6 +549,7 @@ function Doctors() {
       </div>
 
     </div>
+
   );
 }
 

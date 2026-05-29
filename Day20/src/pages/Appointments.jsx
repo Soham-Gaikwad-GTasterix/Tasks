@@ -14,6 +14,9 @@ from "../components/Navbar";
 import Loader
 from "../components/Loader";
 
+import hospitalApi
+from "../api/hospitalApi";
+
 
 function Appointments() {
 
@@ -54,6 +57,13 @@ function Appointments() {
     setAppointmentDate] =
       useState("");    
 
+  const [appointmentTime,
+    setAppointmentTime] =
+      useState("");
+
+  const [appointmentStatus,
+    setAppointmentStatus] =
+      useState("Scheduled");      
 
   /*
   =====================================
@@ -85,7 +95,7 @@ function Appointments() {
         const response =
           await fetch(
 
-            "https://jsonplaceholder.typicode.com/users"
+            "/appointments"
 
           );
 
@@ -124,7 +134,13 @@ function Appointments() {
               date:
                 `2026-06-${
                   (index % 30) + 1
-                }`
+                }`,
+
+              time:
+                `${9 + (index % 8)}:00`,
+
+              status:
+                "Scheduled"
 
             })
 
@@ -175,25 +191,29 @@ function Appointments() {
 
   function addAppointment() {
 
-  const newAppointment = {
+    const newAppointment = {
 
-    id: Date.now(),
+      id: Date.now(),
 
-    patient: patientName,
+      patient: patientName,
 
-    doctor: doctorName,
+      doctor: doctorName,
 
-    date: appointmentDate
+      date: appointmentDate,
 
-  };
+      time: appointmentTime,
 
+      status: appointmentStatus
 
-  setAppointments(
+    };
 
-    [newAppointment, ...appointments]
+    setAppointments(
 
-  );
-}
+      [newAppointment, ...appointments]
+
+    );
+
+  }
 
   /*
   =====================================
@@ -263,65 +283,168 @@ function Appointments() {
         "
       >
 
+      <div
+        className="
+          bg-white
+          rounded-3xl
+          shadow-xl
+          p-3
+          flex
+          justify-between
+          items-center
+          hover:scale-[1.01]
+          transition-all
+          duration-300
+        "
+      >
+
+        {/* LEFT SIDE */}
+
         <div
           className="
-            bg-white
-            rounded-3xl
-            shadow-xl
-            p-6
+            px-2
+        ">
+
+          <h1
+            className="
+              text-2xl
+              font-bold
+              text-blue-700
+            "
+          >
+            {appointment.patient}
+          </h1>
+
+          <p
+            className="
+              text-gray-500
+              mt-2
+            "
+          >
+            {appointment.doctor}
+          </p>
+
+          <p
+            className="
+              text-sm
+              text-gray-500
+              mt-2
+            "
+          >
+            Date:
+            {" "}
+            {appointment.date}
+          </p>
+
+          <p
+            className="
+              text-sm
+              text-gray-500
+            "
+          >
+            Time:
+            {" "}
+            {appointment.time}
+          </p>
+
+        </div>
+
+
+        {/* RIGHT SIDE */}
+
+        <div
+          className="
             flex
-            justify-between
-            items-center
-            hover:scale-[1.01]
-            transition-all
-            duration-300
+            items-end
+            gap-3
+            px-2
           "
         >
 
-          {/* LEFT */}
-          <div>
+          <span
+            className={`
+              px-4
+              py-2
+              rounded-full
+              text-sm
+              font-bold
 
-            <h1
-              className="
-                text-2xl
-                font-bold
-                text-blue-700
-              "
-            >
-              {
-                appointment.patient
+              ${
+                appointment.status === "Completed"
+
+                  ? "bg-green-100 text-green-700"
+
+                : appointment.status === "Cancelled"
+
+                  ? "bg-red-100 text-red-700"
+
+                : "bg-yellow-100 text-yellow-700"
               }
-            </h1>
+            `}
+          >
+            {appointment.status}
+          </span>
 
 
-            <p
-              className="
-                text-gray-500
-                mt-2
-              "
-            >
-              {
-                appointment.doctor
-              }
-            </p>
+          <button
+
+            onClick={() => {
+
+              const newStatus =
+
+                appointment.status ===
+                "Scheduled"
+
+                  ? "Completed"
+
+                : appointment.status ===
+                  "Completed"
+
+                  ? "Cancelled"
+
+                  : "Scheduled";
 
 
-            <p
-              className="
-                text-sm
-                text-gray-400
-                mt-1
-              "
-            >
-              {
-                appointment.date
-              }
-            </p>
+              setAppointments(
 
-          </div>
+                appointments.map(
+
+                  (item) =>
+
+                    item.id ===
+                    appointment.id
+
+                      ? {
+
+                          ...item,
+
+                          status:
+                            newStatus
+
+                        }
+
+                      : item
+
+                )
+
+              );
+
+            }}
+
+            className="
+              bg-blue-500
+              hover:bg-blue-600
+              text-white
+              px-5
+              py-2
+              rounded-xl
+              font-semibold
+            "
+          >
+            Update Status
+          </button>
 
 
-          {/* BUTTON */}
           <button
 
             onClick={() =>
@@ -335,18 +458,19 @@ function Appointments() {
             className="
               bg-red-500
               hover:bg-red-600
-              transition-all
               text-white
               px-5
-              py-3
-              rounded-2xl
-              font-bold
+              py-2
+              rounded-xl
+              font-semibold
             "
           >
-            Cancel
+            Remove
           </button>
 
         </div>
+
+      </div>
 
       </div>
 
@@ -550,6 +674,67 @@ function Appointments() {
                 "
                 />
 
+                <input
+
+                  type="time"
+
+                  value={appointmentTime}
+
+                  onChange={(e) =>
+
+                    setAppointmentTime(
+                      e.target.value
+                    )
+
+                  }
+
+                  className="
+                    w-full
+                    border
+                    border-gray-300
+                    p-4
+                    rounded-xl
+                    mb-5
+                  "
+
+                />
+
+                <select
+
+                  value={appointmentStatus}
+
+                  onChange={(e) =>
+
+                    setAppointmentStatus(
+                      e.target.value
+                    )
+
+                  }
+
+                  className="
+                    w-full
+                    border
+                    border-gray-300
+                    p-4
+                    rounded-xl
+                    mb-8
+                  "
+                >
+
+                  <option value="Scheduled">
+                    Scheduled
+                  </option>
+
+                  <option value="Completed">
+                    Completed
+                  </option>
+
+                  <option value="Cancelled">
+                    Cancelled
+                  </option>
+
+                </select>
+
 
                 {/* BUTTONS */}
                 <div
@@ -570,6 +755,12 @@ function Appointments() {
                     setDoctorName("");
 
                     setAppointmentDate("");
+
+                    setAppointmentTime("");
+
+                    setAppointmentStatus(
+                      "Scheduled"
+                    );
 
                     setIsModalOpen(false);
 

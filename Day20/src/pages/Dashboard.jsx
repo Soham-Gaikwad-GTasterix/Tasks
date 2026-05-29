@@ -1,15 +1,10 @@
 import {
-
   Link
-
 } from "react-router-dom";
 
 import {
-
   useEffect,
-
   useState
-
 } from "react";
 
 import Navbar
@@ -22,6 +17,21 @@ function Dashboard() {
     useState(
       new Date()
     );
+
+  const [activities] =
+    useState([
+
+      "Patient Added",
+
+      "Doctor Updated",
+
+      "Appointment Scheduled",
+
+      "New Admission",
+
+      "Discharge Completed"
+
+    ]);
 
 
   /*
@@ -41,7 +51,6 @@ function Dashboard() {
         );
 
       }, 1000);
-
 
     return () =>
       clearInterval(interval);
@@ -70,15 +79,16 @@ function Dashboard() {
         "
       >
 
-        {/* ========================= */}
         {/* HEADER */}
-        {/* ========================= */}
 
         <div
           className="
             flex
+            flex-col
+            lg:flex-row
             justify-between
             items-center
+            gap-6
             mb-12
           "
         >
@@ -95,7 +105,6 @@ function Dashboard() {
               Hospital Dashboard
             </h1>
 
-
             <p
               className="
                 text-gray-500
@@ -103,13 +112,12 @@ function Dashboard() {
                 mt-3
               "
             >
-              Welcome back, Admin
+              Welcome Back, Admin
             </p>
 
           </div>
 
 
-          {/* LIVE CLOCK */}
           <div
             className="
               bg-white
@@ -148,20 +156,19 @@ function Dashboard() {
         </div>
 
 
-        {/* ========================= */}
-        {/* STATS CARDS */}
-        {/* ========================= */}
+        {/* STATS */}
 
         <div
           className="
             grid
-            grid-cols-3
+            md:grid-cols-3
             gap-8
             mb-12
           "
         >
 
           {/* PATIENTS */}
+
           <Link to="/patients">
 
             <div
@@ -170,6 +177,8 @@ function Dashboard() {
                 rounded-3xl
                 p-8
                 shadow-2xl
+                hover:scale-105
+                transition-all
                 cursor-pointer
                 border-l-8
                 border-blue-500
@@ -185,7 +194,6 @@ function Dashboard() {
                 Total Patients
               </h2>
 
-
               <h1
                 className="
                   text-6xl
@@ -197,91 +205,288 @@ function Dashboard() {
                 10
               </h1>
 
+              <p
+                className="
+                  text-blue-500
+                  mt-4
+                "
+              >
+                Manage Patients →
+              </p>
+
             </div>
 
           </Link>
 
 
           {/* DOCTORS */}
-          <Link to="/doctors">          
-          <div
-            className="
-              bg-white
-              rounded-3xl
-              p-8
-              shadow-2xl
-              border-l-8
-              border-green-500
-            "
-          >
 
-            <h2
+          <Link to="/doctors">
+
+            <div
               className="
-                text-gray-500
-                text-xl
+                bg-white
+                rounded-3xl
+                p-8
+                shadow-2xl
+                hover:scale-105
+                transition-all
+                cursor-pointer
+                border-l-8
+                border-green-500
               "
             >
-              Doctors
-            </h2>
 
+              <h2
+                className="
+                  text-gray-500
+                  text-xl
+                "
+              >
+                Doctors
+              </h2>
 
-            <h1
-              className="
-                text-6xl
-                font-black
-                text-green-600
-                mt-4
-              "
-            >
-              10
-            </h1>
+              <h1
+                className="
+                  text-6xl
+                  font-black
+                  text-green-600
+                  mt-4
+                "
+              >
+                10
+              </h1>
 
-          </div>
+              <p
+                className="
+                  text-green-500
+                  mt-4
+                "
+              >
+                Manage Doctors →
+              </p>
+
+            </div>
+
           </Link>
 
 
           {/* APPOINTMENTS */}
+
           <Link to="/appointments">
+
+            <div
+              className="
+                bg-white
+                rounded-3xl
+                p-8
+                shadow-2xl
+                hover:scale-105
+                transition-all
+                cursor-pointer
+                border-l-8
+                border-red-500
+              "
+            >
+
+              <h2
+                className="
+                  text-gray-500
+                  text-xl
+                "
+              >
+                Appointments
+              </h2>
+
+              <h1
+                className="
+                  text-6xl
+                  font-black
+                  text-red-600
+                  mt-4
+                "
+              >
+                100
+              </h1>
+
+              <p
+                className="
+                  text-red-500
+                  mt-4
+                "
+              >
+                View Appointments →
+              </p>
+
+            </div>
+
+          </Link>
+
+        </div>
+
+
+        {/* QUICK ACTIONS + ACTIVITY */}
+
+        <div
+          className="
+            grid
+            lg:grid-cols-2
+            gap-8
+          "
+        >
+
+          {/* QUICK ACTIONS */}
+
           <div
             className="
               bg-white
               rounded-3xl
               p-8
-              shadow-2xl
-              border-l-8
-              border-red-500
+              shadow-xl
             "
           >
 
             <h2
               className="
-                text-gray-500
-                text-xl
+                text-3xl
+                font-bold
+                mb-6
               "
             >
-              Appointments
+              Quick Actions
             </h2>
 
-
-            <h1
+            <div
               className="
-                text-6xl
-                font-black
-                text-red-600
-                mt-4
+                flex
+                flex-col
+                gap-4
               "
             >
-              100
-            </h1>
+
+              <Link to="/patients">
+
+                <button
+                  className="
+                    w-full
+                    bg-blue-500
+                    hover:bg-blue-600
+                    text-white
+                    py-4
+                    rounded-xl
+                    transition-all
+                  "
+                >
+                  Add Patient
+                </button>
+
+              </Link>
+
+
+              <Link to="/doctors">
+
+                <button
+                  className="
+                    w-full
+                    bg-green-500
+                    hover:bg-green-600
+                    text-white
+                    py-4
+                    rounded-xl
+                    transition-all
+                  "
+                >
+                  Add Doctor
+                </button>
+
+              </Link>
+
+
+              <Link to="/appointments">
+
+                <button
+                  className="
+                    w-full
+                    bg-red-500
+                    hover:bg-red-600
+                    text-white
+                    py-4
+                    rounded-xl
+                    transition-all
+                  "
+                >
+                  Book Appointment
+                </button>
+
+              </Link>
+
+            </div>
 
           </div>
-          </Link>
+
+
+          {/* RECENT ACTIVITY */}
+
+          <div
+            className="
+              bg-white
+              rounded-3xl
+              p-8
+              shadow-xl
+            "
+          >
+
+            <h2
+              className="
+                text-3xl
+                font-bold
+                mb-6
+              "
+            >
+              Recent Activity
+            </h2>
+
+            <div
+              className="
+                space-y-4
+              "
+            >
+
+              {
+                activities.map(
+
+                  (activity, index) => (
+
+                    <div
+
+                      key={index}
+
+                      className="
+                        bg-gray-100
+                        p-4
+                        rounded-xl
+                      "
+                    >
+
+                      ✅ {activity}
+
+                    </div>
+
+                  )
+
+                )
+              }
+
+            </div>
+
+          </div>
 
         </div>
 
       </div>
 
     </div>
+
   );
 }
 

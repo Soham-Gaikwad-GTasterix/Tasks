@@ -44,7 +44,7 @@ function usePatients() {
 
       const response =
         await hospitalApi.get(
-          "/users"
+          "/patients"
         );
 
       setPatients(
@@ -72,64 +72,99 @@ function usePatients() {
   =====================================
   */
 
-    function addPatient(patientData) {
-
-    if (
-        !patientData.name.trim()
-    ) return;
-
-
-    const newPatient = {
-
-        id: Date.now(),
-
-        name: patientData.name,
-
-        email: patientData.email
-
-    };
-
-
-    setPatients(
-
-        [...patients, newPatient]
-
-    );
-    }
-
-  function deletePatient(id) {
-
-    setPatients(
-
-      patients.filter(
-
-        (patient) =>
-
-          patient.id !== id
-
-      )
-
-    );
-  }
-
-  function updatePatient(
-    updatedPatient
+  async function addPatient(
+    patientData
   ) {
 
-    setPatients(
+    try {
 
-        patients.map((patient) =>
+      const response =
+        await hospitalApi.post(
+          "/patients",
+          patientData
+        );
 
-        patient.id ===
-        updatedPatient.id
+      setPatients(
 
-            ? updatedPatient
+        [...patients,
+          response.data]
 
-            : patient
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  }
+
+  async function deletePatient(id) {
+
+    try {
+
+      await hospitalApi.delete(
+        `/patients/${id}`
+      );
+
+      setPatients(
+
+        patients.filter(
+
+          (patient) =>
+
+            patient.id !== id
 
         )
 
-    );
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  }
+
+  async function updatePatient(
+    updatedPatient
+  ) {
+
+    try {
+
+      const response =
+        await hospitalApi.put(
+
+          `/patients/${updatedPatient.id}`,
+
+          updatedPatient
+
+        );
+
+      setPatients(
+
+        patients.map(
+
+          (patient) =>
+
+            patient.id ===
+            updatedPatient.id
+
+              ? response.data
+
+              : patient
+
+        )
+
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
   }
 
 

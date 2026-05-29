@@ -1,9 +1,7 @@
 function PatientCard({
 
   patient,
-
   onDelete,
-
   onUpdate
 
 }) {
@@ -28,72 +26,101 @@ function PatientCard({
         {patient.name}
       </h1>
 
-
       <p
         className="
-          mt-3
+          mt-2
           text-gray-500
         "
       >
         {patient.email}
       </p>
 
-
-        <div
+      <div
         className="
-            flex
-            gap-4
-            mt-5
+          mt-4
+          space-y-2
+          text-gray-600
         "
-        >
+      >
+
+        <p>
+          Age: {patient.age}
+        </p>
+
+        <p>
+          Gender: {patient.gender}
+        </p>
+
+        <p>
+          Disease: {patient.disease}
+        </p>
+
+        <p>
+          Admission: {patient.admissionDate}
+        </p>
+
+        <p>
+          Phone: {patient.phone}
+        </p>
+
+        <p>
+          Blood Group: {patient.bloodGroup}
+        </p>
+
+        <p>
+          Room: {patient.roomNumber}
+        </p>
+
+      </div>
+
+      <div
+        className="
+          flex
+          gap-4
+          mt-6
+        "
+      >
 
         <button
-
-            onClick={() =>
+          onClick={() =>
             onUpdate(patient)
-            }
-
-            className="
+          }
+          className="
             flex-1
             bg-blue-500
             hover:bg-blue-600
-            transition-all
             text-white
-            px-5
             py-3
             rounded-xl
             font-semibold
-            "
+          "
         >
-            Update
+          Update
         </button>
 
-
         <button
-
-            onClick={() =>
+          onClick={() =>
             onDelete(patient.id)
-            }
-
-            className="
+          }
+          className="
             flex-1
             bg-red-500
             hover:bg-red-600
-            transition-all
             text-white
-            px-5
             py-3
             rounded-xl
             font-semibold
-            "
+          "
         >
-            Delete
+          Delete
         </button>
 
-        </div>
+      </div>
 
     </div>
+
   );
+
 }
 
 export default PatientCard;

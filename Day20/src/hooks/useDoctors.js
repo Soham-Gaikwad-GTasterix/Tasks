@@ -6,6 +6,9 @@ import {
 
 } from "react";
 
+import hospitalApi
+from "../api/hospitalApi";
+
 
 function useDoctors() {
 
@@ -31,50 +34,41 @@ function useDoctors() {
   =====================================
   */
 
-  useEffect(() => {
+  async function fetchDoctors() {
 
-    async function fetchDoctors() {
+    try {
 
-      try {
+      setLoading(true);
 
-        setLoading(true);
-
-
-        await new Promise(
-
-          (resolve) =>
-
-            setTimeout(
-              resolve,
-              1500
-            )
-
+      const response =
+        await hospitalApi.get(
+          "/doctors"
         );
 
+      setDoctors(
+        response.data || []
+      );
 
-        const response =
-          await fetch(
+      setError(null);
 
-            "https://jsonplaceholder.typicode.com/users"
+    } catch (err) {
 
-          );
+      console.error(err);
 
-        const data =
-          await response.json();
+      setDoctors([]);
 
-        setDoctors(data);
+      setError(null);
 
-      } catch (err) {
+    } finally {
 
-        setError(
-          "Failed To Fetch Doctors"
-        );
+      setLoading(false);
 
-      } finally {
-
-        setLoading(false);
-      }
     }
+
+  }
+
+
+  useEffect(() => {
 
     fetchDoctors();
 
@@ -87,31 +81,34 @@ function useDoctors() {
   =====================================
   */
 
-  function addDoctor(
+  async function addDoctor(
     doctorData
   ) {
 
-    if (
-      !doctorData.name.trim()
-    ) return;
+    try {
 
+      const response =
+        await hospitalApi.post(
 
-    const newDoctor = {
+          "/doctors",
 
-      id: Date.now(),
+          doctorData
 
-      name: doctorData.name,
+        );
 
-      email: doctorData.email
+      setDoctors(
 
-    };
+        [...doctors,
+          response.data]
 
+      );
 
-    setDoctors(
+    } catch (error) {
 
-      [...doctors, newDoctor]
+      console.error(error);
 
-    );
+    }
+
   }
 
 
@@ -121,19 +118,32 @@ function useDoctors() {
   =====================================
   */
 
-  function deleteDoctor(id) {
+  async function deleteDoctor(id) {
 
-    setDoctors(
+    try {
 
-      doctors.filter(
+      await hospitalApi.delete(
+        `/doctors/${id}`
+      );
 
-        (doctor) =>
+      setDoctors(
 
-          doctor.id !== id
+        doctors.filter(
 
-      )
+          (doctor) =>
 
-    );
+            doctor.id !== id
+
+        )
+
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
   }
 
 
@@ -143,24 +153,44 @@ function useDoctors() {
   =====================================
   */
 
-  function updateDoctor(
+  async function updateDoctor(
     updatedDoctor
   ) {
 
-    setDoctors(
+    try {
 
-      doctors.map((doctor) =>
+      const response =
+        await hospitalApi.put(
 
-        doctor.id ===
-        updatedDoctor.id
+          `/doctors/${updatedDoctor.id}`,
 
-          ? updatedDoctor
+          updatedDoctor
 
-          : doctor
+        );
 
-      )
+      setDoctors(
 
-    );
+        doctors.map(
+
+          (doctor) =>
+
+            doctor.id ===
+            updatedDoctor.id
+
+              ? response.data
+
+              : doctor
+
+        )
+
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
   }
 
 
@@ -179,6 +209,7 @@ function useDoctors() {
     updateDoctor
 
   };
+
 }
 
 export default useDoctors;

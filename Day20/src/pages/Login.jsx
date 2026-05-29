@@ -1,21 +1,14 @@
 import {
-
   useState,
-
   useContext
-
 } from "react";
 
 import {
-
   useNavigate
-
 } from "react-router-dom";
 
 import {
-
   AuthContext
-
 } from "../context/AuthContext";
 
 
@@ -24,12 +17,19 @@ function Login() {
   const [email, setEmail] =
     useState("");
 
-  const [password,
-    setPassword] =
-      useState("");
+  const [password, setPassword] =
+    useState("");
 
   const [error, setError] =
     useState("");
+
+  const [showPassword,
+    setShowPassword] =
+      useState(false);
+
+  const [loading,
+    setLoading] =
+      useState(false);
 
 
   const { dispatch } =
@@ -41,38 +41,84 @@ function Login() {
 
   function handleLogin() {
 
-    if (
+    setError("");
 
-      email ===
-        "admin@hospital.com"
+    setLoading(true);
 
-      &&
+    setTimeout(() => {
 
-      password ===
-        "admin123"
+      const users = [
 
-    ) {
+        {
+          email:
+            "admin@hospital.com",
 
-      dispatch({
+          password:
+            "admin123",
 
-        type: "LOGIN",
+          role:
+            "admin"
+        },
 
-        payload: {
+        {
+          email:
+            "user@hospital.com",
 
-          email
+          password:
+            "user123",
 
+          role:
+            "user"
         }
 
-      });
+      ];
 
-      navigate("/dashboard");
 
-    } else {
+      const user =
+        users.find(
 
-      setError(
-        "Invalid Credentials"
-      );
-    }
+          (u) =>
+
+            u.email === email
+
+            &&
+
+            u.password === password
+
+        );
+
+
+      if (user) {
+
+        dispatch({
+
+          type: "LOGIN",
+
+          payload: {
+
+            email:
+              user.email,
+
+            role:
+              user.role
+
+          }
+
+        });
+
+        navigate("/dashboard");
+
+      } else {
+
+        setError(
+          "Invalid Credentials"
+        );
+      }
+
+      setLoading(false);
+
+    }, 1500);
+
   }
 
 
@@ -83,7 +129,8 @@ function Login() {
         min-h-screen
         bg-gradient-to-br
         from-blue-100
-        to-indigo-200
+        via-indigo-100
+        to-purple-200
         flex
         items-center
         justify-center
@@ -99,21 +146,52 @@ function Login() {
           shadow-2xl
           w-full
           max-w-md
+          hover:scale-[1.02]
+          transition-all
         "
       >
 
-        <h1
+        {/* LOGO */}
+
+        <div
           className="
-            text-5xl
-            font-bold
-            text-blue-700
-            mb-8
             text-center
+            mb-8
           "
         >
-          Hospital Login
-        </h1>
 
+          <div
+            className="
+              text-6xl
+            "
+          >
+            🏥
+          </div>
+
+          <h1
+            className="
+              text-5xl
+              font-bold
+              text-blue-700
+              mt-4
+            "
+          >
+            Hospital Login
+          </h1>
+
+          <p
+            className="
+              text-gray-500
+              mt-2
+            "
+          >
+            Welcome Back
+          </p>
+
+        </div>
+
+
+        {/* EMAIL */}
 
         <input
 
@@ -124,44 +202,103 @@ function Login() {
           value={email}
 
           onChange={(e) =>
+
             setEmail(
               e.target.value
             )
+
           }
 
           className="
             w-full
             border
+            border-gray-300
             p-4
             rounded-xl
             mb-5
+            outline-none
+            focus:border-blue-500
           "
         />
 
 
-        <input
+        {/* PASSWORD */}
 
-          type="password"
-
-          placeholder="Password"
-
-          value={password}
-
-          onChange={(e) =>
-            setPassword(
-              e.target.value
-            )
-          }
-
+        <div
           className="
-            w-full
-            border
-            p-4
-            rounded-xl
+            relative
             mb-5
           "
-        />
+        >
 
+          <input
+
+            type={
+              showPassword
+
+                ? "text"
+
+                : "password"
+            }
+
+            placeholder="Password"
+
+            value={password}
+
+            onChange={(e) =>
+
+              setPassword(
+                e.target.value
+              )
+
+            }
+
+            className="
+              w-full
+              border
+              border-gray-300
+              p-4
+              rounded-xl
+              outline-none
+              focus:border-blue-500
+            "
+          />
+
+
+          <button
+
+            type="button"
+
+            onClick={() =>
+
+              setShowPassword(
+                !showPassword
+              )
+
+            }
+
+            className="
+              absolute
+              right-4
+              top-1/2
+              -translate-y-1/2
+              text-blue-600
+              font-semibold
+            "
+          >
+            {
+              showPassword
+
+                ? "Hide"
+
+                : "Show"
+            }
+          </button>
+
+        </div>
+
+
+        {/* ERROR */}
 
         {
           error && (
@@ -170,6 +307,7 @@ function Login() {
               className="
                 text-red-500
                 mb-5
+                font-medium
               "
             >
               {error}
@@ -179,9 +317,13 @@ function Login() {
         }
 
 
+        {/* LOGIN BUTTON */}
+
         <button
 
           onClick={handleLogin}
+
+          disabled={loading}
 
           className="
             w-full
@@ -192,27 +334,38 @@ function Login() {
             py-4
             rounded-2xl
             font-bold
+            disabled:opacity-50
           "
         >
-          Login
+
+          {
+            loading
+
+              ? "Signing In..."
+
+              : "Login"
+          }
+
         </button>
 
 
-        <div
+        {/* FOOTER */}
+
+        <p
           className="
+            text-center
+            text-gray-400
             mt-6
-            text-gray-500
             text-sm
           "
         >
-          admin@hospital.com
-          <br />
-          admin123
-        </div>
+          Hospital Management System
+        </p>
 
       </div>
 
     </div>
+
   );
 }
 

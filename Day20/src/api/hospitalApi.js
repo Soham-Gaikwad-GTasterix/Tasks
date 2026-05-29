@@ -4,7 +4,7 @@ import axios from "axios";
 const hospitalApi = axios.create({
 
   baseURL:
-    "https://jsonplaceholder.typicode.com"
+    "http://localhost:3001"
 
 });
 
