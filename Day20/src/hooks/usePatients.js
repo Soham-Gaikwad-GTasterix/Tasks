@@ -38,7 +38,7 @@ function usePatients() {
 
       (resolve) =>
 
-        setTimeout(resolve, 2000)
+        setTimeout(resolve, 1000)
 
       );
 
@@ -55,9 +55,11 @@ function usePatients() {
 
     } catch (err) {
 
-      setError(
-        "Failed To Fetch Patients"
-      );
+     console.error(err);
+
+      setPatients([]);
+
+      setError(null);
 
     } finally {
 

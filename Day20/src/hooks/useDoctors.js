@@ -40,6 +40,14 @@ function useDoctors() {
 
       setLoading(true);
 
+      await new Promise(
+
+      (resolve) =>
+
+        setTimeout(resolve, 1000)
+
+      );      
+
       const response =
         await hospitalApi.get(
           "/doctors"

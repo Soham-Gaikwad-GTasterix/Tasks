@@ -42,7 +42,7 @@ function Navbar() {
 
     <div
       className="
-        bg-blue-700
+        bg-slate-900
         text-white
         px-10
         py-5
@@ -52,17 +52,19 @@ function Navbar() {
       "
     >
 
-      <h1
-        className="
-          text-3xl
-          font-bold
-        "
-      >
-        Hospital System
-      </h1>
+    <h1
+      className="
+        text-2xl
+        font-bold
+      "
+    >
+      Admin Panel
+    </h1>
 
 
       <button
+
+        type="button"
 
         onClick={logout}
 

@@ -1,8 +1,10 @@
-function PatientCard({
+function DoctorCard({
 
-  patient,
-  onDelete,
-  onUpdate
+  doctor,
+
+  onUpdate,
+
+  onDelete
 
 }) {
 
@@ -23,16 +25,16 @@ function PatientCard({
           font-bold
         "
       >
-        {patient.name}
+        {doctor.name}
       </h1>
 
       <p
         className="
-          mt-2
           text-gray-500
+          mt-2
         "
       >
-        {patient.email}
+        {doctor.email}
       </p>
 
       <div
@@ -44,31 +46,33 @@ function PatientCard({
       >
 
         <p>
-          Age: {patient.age}
+          Specialization:
+          {" "}
+          {doctor.specialization}
         </p>
 
         <p>
-          Gender: {patient.gender}
+          Experience:
+          {" "}
+          {doctor.experience}
         </p>
 
         <p>
-          Disease: {patient.disease}
+          Department:
+          {" "}
+          {doctor.department}
         </p>
 
         <p>
-          Admission: {patient.admissionDate}
+          Qualification:
+          {" "}
+          {doctor.qualification}
         </p>
 
         <p>
-          Phone: {patient.phone}
-        </p>
-
-        <p>
-          Blood Group: {patient.bloodGroup}
-        </p>
-
-        <p>
-          Room: {patient.roomNumber}
+          Phone:
+          {" "}
+          {doctor.phone}
         </p>
 
       </div>
@@ -83,19 +87,16 @@ function PatientCard({
 
         <button
 
-          type="button"
-
           onClick={() =>
-            onUpdate(patient)
+            onUpdate(doctor)
           }
+
           className="
             flex-1
             bg-blue-500
-            hover:bg-blue-600
             text-white
             py-3
             rounded-xl
-            font-semibold
           "
         >
           Update
@@ -103,19 +104,18 @@ function PatientCard({
 
         <button
 
-          type="button"
-          
           onClick={() =>
-            onDelete(patient.id)
+            onDelete(
+              doctor.id
+            )
           }
+
           className="
             flex-1
             bg-red-500
-            hover:bg-red-600
             text-white
             py-3
             rounded-xl
-            font-semibold
           "
         >
           Delete
@@ -129,4 +129,4 @@ function PatientCard({
 
 }
 
-export default PatientCard;
+export default DoctorCard;

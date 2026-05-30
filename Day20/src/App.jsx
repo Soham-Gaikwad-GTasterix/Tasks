@@ -29,8 +29,18 @@ from "./pages/Appointments";
 import PrivateRoute
 from "./routes/PrivateRoute";
 
+import { useState } from "react";
+
 
 function App() {
+
+  const [
+
+    sidebarCollapsed,
+
+    setSidebarCollapsed
+
+  ] = useState(false);
 
   return (
 
@@ -54,7 +64,17 @@ function App() {
 
             <PrivateRoute>
 
-              <Dashboard />
+            <Dashboard
+
+              sidebarCollapsed={
+                sidebarCollapsed
+              }
+
+              setSidebarCollapsed={
+                setSidebarCollapsed
+              }
+
+            />
 
             </PrivateRoute>
 
@@ -72,7 +92,17 @@ function App() {
 
             <PrivateRoute>
 
-              <Patients />
+            <Patients
+
+              sidebarCollapsed={
+                sidebarCollapsed
+              }
+
+              setSidebarCollapsed={
+                setSidebarCollapsed
+              }
+
+            />
 
             </PrivateRoute>
 
@@ -90,7 +120,17 @@ function App() {
 
             <PrivateRoute>
 
-              <Doctors />
+            <Doctors
+
+              sidebarCollapsed={
+                sidebarCollapsed
+              }
+
+              setSidebarCollapsed={
+                setSidebarCollapsed
+              }
+
+            />
 
             </PrivateRoute>
 
@@ -107,7 +147,17 @@ function App() {
 
             <PrivateRoute>
 
-              <Appointments />
+            <Appointments
+
+              sidebarCollapsed={
+                sidebarCollapsed
+              }
+
+              setSidebarCollapsed={
+                setSidebarCollapsed
+              }
+
+            />
 
             </PrivateRoute>
 

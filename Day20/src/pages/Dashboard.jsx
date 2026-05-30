@@ -10,8 +10,17 @@ import {
 import Navbar
 from "../components/Navbar";
 
+import Sidebar
+from "../components/Sidebar";
 
-function Dashboard() {
+
+function Dashboard({
+
+  sidebarCollapsed,
+
+  setSidebarCollapsed
+
+}) {
 
   const [time, setTime] =
     useState(
@@ -58,20 +67,50 @@ function Dashboard() {
   }, []);
 
 
-  return (
+return (
+
+  <div
+    className="
+      min-h-screen
+      bg-gradient-to-br
+      from-blue-100
+      via-indigo-100
+      to-purple-100
+    "
+  >
+
+    <Sidebar
+
+      sidebarCollapsed={
+        sidebarCollapsed
+      }
+
+      setSidebarCollapsed={
+        setSidebarCollapsed
+      }
+
+    />
 
     <div
-      className="
-        min-h-screen
-        bg-gradient-to-br
-        from-blue-100
-        via-indigo-100
-        to-purple-100
-      "
+
+      className={`
+
+        transition-all
+        duration-300
+
+        ${
+          sidebarCollapsed
+
+            ? "ml-20"
+
+            : "ml-72"
+        }
+
+      `}
+
     >
 
       <Navbar />
-
 
       <div
         className="
@@ -482,6 +521,8 @@ function Dashboard() {
           </div>
 
         </div>
+
+      </div>
 
       </div>
 

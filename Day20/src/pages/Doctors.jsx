@@ -6,7 +6,19 @@ import Navbar from "../components/Navbar";
 import Loader from "../components/Loader";
 import useDoctors from "../hooks/useDoctors";
 
-function Doctors() {
+import DoctorCard
+from "../components/DoctorCard";
+
+import Sidebar
+from "../components/Sidebar";
+
+function Doctors({
+
+  sidebarCollapsed,
+
+  setSidebarCollapsed
+
+}) {
 
   const {
     doctors,
@@ -57,21 +69,6 @@ function Doctors() {
     return <Loader />;
   }
 
-  if (error) {
-    return (
-      <div
-        className="
-          text-red-500
-          text-4xl
-          font-bold
-          mt-20
-          text-center
-        "
-      >
-        {error}
-      </div>
-    );
-  }
 
   return (
 
@@ -81,6 +78,37 @@ function Doctors() {
         bg-green-50
       "
     >
+
+      <Sidebar
+
+        sidebarCollapsed={
+          sidebarCollapsed
+        }
+
+        setSidebarCollapsed={
+          setSidebarCollapsed
+        }
+
+      />
+
+      <div
+
+        className={`
+
+          transition-all
+          duration-300
+
+          ${
+            sidebarCollapsed
+
+              ? "ml-20"
+
+              : "ml-72"
+          }
+
+        `}
+
+      >
 
       <Navbar />
 
@@ -295,6 +323,8 @@ function Doctors() {
 
                 <button
 
+                  type="button"
+
                   onClick={() => {
 
                     const doctorData = {
@@ -349,6 +379,8 @@ function Doctors() {
 
                 <button
 
+                  type="button"
+
                   onClick={() =>
                     setIsModalOpen(
                       false
@@ -384,167 +416,98 @@ function Doctors() {
           "
         >
 
-          {
-            doctors.map((doctor) => (
+        {
+          doctors.length === 0 ? (
 
-              <div
+            <div
+              className="
+                col-span-full
+                flex
+                flex-col
+                items-center
+                justify-center
+                py-20
+              "
+            >
 
-                key={doctor.id}
-
+              <h2
                 className="
-                  bg-white
-                  rounded-3xl
-                  shadow-xl
-                  p-6
+                  text-4xl
+                  font-bold
+                  text-gray-500
                 "
               >
+                No Doctors Found
+              </h2>
 
-                <h1
-                  className="
-                    text-3xl
-                    font-bold
-                  "
-                >
-                  {doctor.name}
-                </h1>
+              <p
+                className="
+                  mt-4
+                  text-gray-400
+                "
+              >
+                Click Add Doctor to create one.
+              </p>
 
-                <p
-                  className="
-                    text-gray-500
-                    mt-2
-                  "
-                >
-                  {doctor.email}
-                </p>
+            </div>
 
-                <div
-                  className="
-                    mt-4
-                    space-y-2
-                    text-gray-600
-                  "
-                >
+          ) : (
 
-                  <p>
-                    Specialization:
-                    {" "}
-                    {doctor.specialization}
-                  </p>
+            doctors.map((doctor) => (
 
-                  <p>
-                    Experience:
-                    {" "}
-                    {doctor.experience}
-                  </p>
+              <DoctorCard
+                key={doctor.id}
+                doctor={doctor}
+                onDelete={deleteDoctor}
+                onUpdate={(doctor) => {
 
-                  <p>
-                    Department:
-                    {" "}
-                    {doctor.department}
-                  </p>
+                  setEditingDoctor(
+                    doctor
+                  );
 
-                  <p>
-                    Qualification:
-                    {" "}
-                    {doctor.qualification}
-                  </p>
+                  setDoctorName(
+                    doctor.name || ""
+                  );
 
-                  <p>
-                    Phone:
-                    {" "}
-                    {doctor.phone}
-                  </p>
+                  setDoctorEmail(
+                    doctor.email || ""
+                  );
 
-                </div>
+                  setSpecialization(
+                    doctor.specialization || ""
+                  );
 
-                <div
-                  className="
-                    flex
-                    gap-4
-                    mt-6
-                  "
-                >
+                  setExperience(
+                    doctor.experience || ""
+                  );
 
-                  <button
+                  setDepartment(
+                    doctor.department || ""
+                  );
 
-                    onClick={() => {
+                  setQualification(
+                    doctor.qualification || ""
+                  );
 
-                      setEditingDoctor(
-                        doctor
-                      );
+                  setPhone(
+                    doctor.phone || ""
+                  );
 
-                      setDoctorName(
-                        doctor.name || ""
-                      );
+                  setIsModalOpen(
+                    true
+                  );
 
-                      setDoctorEmail(
-                        doctor.email || ""
-                      );
-
-                      setSpecialization(
-                        doctor.specialization || ""
-                      );
-
-                      setExperience(
-                        doctor.experience || ""
-                      );
-
-                      setDepartment(
-                        doctor.department || ""
-                      );
-
-                      setQualification(
-                        doctor.qualification || ""
-                      );
-
-                      setPhone(
-                        doctor.phone || ""
-                      );
-
-                      setIsModalOpen(
-                        true
-                      );
-
-                    }}
-
-                    className="
-                      flex-1
-                      bg-blue-500
-                      text-white
-                      py-3
-                      rounded-xl
-                    "
-                  >
-                    Update
-                  </button>
-
-                  <button
-
-                    onClick={() =>
-                      deleteDoctor(
-                        doctor.id
-                      )
-                    }
-
-                    className="
-                      flex-1
-                      bg-red-500
-                      text-white
-                      py-3
-                      rounded-xl
-                    "
-                  >
-                    Delete
-                  </button>
-
-                </div>
-
-              </div>
+                }}
+              />
 
             ))
-          }
+
+          )
+        }
 
         </div>
+
+      </div>
 
       </div>
 

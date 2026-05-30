@@ -15,7 +15,25 @@ export const AuthContext =
 
 const initialState = {
 
-  user: null
+  user: (() => {
+
+    const savedUser =
+
+      localStorage.getItem(
+        "user"
+      );
+
+    return savedUser
+
+      ? JSON.parse(
+          savedUser
+        )
+
+      : null;
+
+  })(),
+
+  loading: true
 
 };
 
@@ -58,7 +76,20 @@ function authReducer(
 
         ...state,
 
-        user: action.payload
+        user: action.payload,
+
+        loading: false
+
+      };
+
+
+    case "FINISH_LOADING":
+
+      return {
+
+        ...state,
+
+        loading: false
 
       };
 
@@ -66,7 +97,9 @@ function authReducer(
     default:
 
       return state;
+
   }
+
 }
 
 
@@ -76,14 +109,19 @@ function AuthProvider({
 
 }) {
 
-  const [state, dispatch] =
-    useReducer(
+  const [
 
-      authReducer,
+    state,
 
-      initialState
+    dispatch
 
-    );
+  ] = useReducer(
+
+    authReducer,
+
+    initialState
+
+  );
 
 
   useEffect(() => {
@@ -103,7 +141,18 @@ function AuthProvider({
           "RESTORE_SESSION",
 
         payload:
-          JSON.parse(savedUser)
+          JSON.parse(
+            savedUser
+          )
+
+      });
+
+    } else {
+
+      dispatch({
+
+        type:
+          "FINISH_LOADING"
 
       });
 
@@ -131,6 +180,7 @@ function AuthProvider({
       localStorage.removeItem(
         "user"
       );
+
     }
 
   }, [state.user]);
@@ -142,7 +192,11 @@ function AuthProvider({
 
       value={{
 
-        user: state.user,
+        user:
+          state.user,
+
+        loading:
+          state.loading,
 
         dispatch
 
@@ -155,6 +209,7 @@ function AuthProvider({
     </AuthContext.Provider>
 
   );
+
 }
 
 export default AuthProvider;

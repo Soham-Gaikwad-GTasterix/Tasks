@@ -14,29 +14,29 @@ from "../components/Navbar";
 import Loader
 from "../components/Loader";
 
-import hospitalApi
-from "../api/hospitalApi";
+import useAppointments
+from "../hooks/useAppointments";
+
+import AppointmentCard
+from "../components/AppointmentCard";
+
+import Sidebar
+from "../components/Sidebar";
 
 
-function Appointments() {
+function Appointments({
+
+  sidebarCollapsed,
+
+  setSidebarCollapsed
+
+}) {
 
   /*
   =====================================
   STATES
   =====================================
   */
-
-  const [appointments,
-    setAppointments] =
-      useState([]);
-
-  const [loading,
-    setLoading] =
-      useState(true);
-
-  const [error,
-    setError] =
-      useState(null);
 
   const [isModalOpen,
     setIsModalOpen] =
@@ -65,155 +65,24 @@ function Appointments() {
     setAppointmentStatus] =
       useState("Scheduled");      
 
-  /*
-  =====================================
-  FETCH
-  =====================================
-  */
+  const {
 
-  useEffect(() => {
+    appointments,
 
-    async function fetchAppointments() {
+    loading,
 
-      try {
+    error,
 
-        setLoading(true);
+    addAppointment,
 
+    deleteAppointment,
 
-        await new Promise(
+    updateAppointment
 
-          (resolve) =>
-
-            setTimeout(
-              resolve,
-              1500
-            )
-
-        );
+  } = useAppointments();
 
 
-        const response =
-          await fetch(
 
-            "/appointments"
-
-          );
-
-        const data =
-          await response.json();
-
-
-        /*
-        =====================================
-        LARGE DATASET
-        =====================================
-        */
-
-        const generatedAppointments =
-
-          Array.from(
-
-            { length: 100 },
-
-            (_, index) => ({
-
-              id: index + 1,
-
-              patient:
-                data[
-                  index % data.length
-                ].name,
-
-              doctor:
-                `Dr. ${
-                  data[
-                    index % data.length
-                  ].username
-                }`,
-
-              date:
-                `2026-06-${
-                  (index % 30) + 1
-                }`,
-
-              time:
-                `${9 + (index % 8)}:00`,
-
-              status:
-                "Scheduled"
-
-            })
-
-          );
-
-
-        setAppointments(
-          generatedAppointments
-        );
-
-      } catch (err) {
-
-        setError(
-          "Failed To Fetch Appointments"
-        );
-
-      } finally {
-
-        setLoading(false);
-      }
-    }
-
-    fetchAppointments();
-
-  }, []);
-
-
-  /*
-  =====================================
-  DELETE
-  =====================================
-  */
-
-  function deleteAppointment(id) {
-
-    setAppointments(
-
-      appointments.filter(
-
-        (appointment) =>
-
-          appointment.id !== id
-
-      )
-
-    );
-  }
-
-  function addAppointment() {
-
-    const newAppointment = {
-
-      id: Date.now(),
-
-      patient: patientName,
-
-      doctor: doctorName,
-
-      date: appointmentDate,
-
-      time: appointmentTime,
-
-      status: appointmentStatus
-
-    };
-
-    setAppointments(
-
-      [newAppointment, ...appointments]
-
-    );
-
-  }
 
   /*
   =====================================
@@ -227,29 +96,32 @@ function Appointments() {
   }
 
 
-  /*
-  =====================================
-  ERROR
-  =====================================
-  */
+  async function updateAppointmentStatus(
+    appointment
+  ) {
 
-  if (error) {
+    const nextStatus =
 
-    return (
+      appointment.status ===
+      "Scheduled"
 
-      <div
-        className="
-          text-red-500
-          text-4xl
-          font-bold
-          mt-20
-          text-center
-        "
-      >
-        {error}
-      </div>
+        ? "Completed"
 
-    );
+      : appointment.status ===
+        "Completed"
+
+        ? "Cancelled"
+
+        : "Scheduled";
+
+    await updateAppointment({
+
+      ...appointment,
+
+      status: nextStatus
+
+    });
+
   }
 
 
@@ -283,194 +155,21 @@ function Appointments() {
         "
       >
 
-      <div
-        className="
-          bg-white
-          rounded-3xl
-          shadow-xl
-          p-3
-          flex
-          justify-between
-          items-center
-          hover:scale-[1.01]
-          transition-all
-          duration-300
-        "
-      >
+        <AppointmentCard
 
-        {/* LEFT SIDE */}
+          appointment={
+            appointment
+          }
 
-        <div
-          className="
-            px-2
-        ">
+          onDelete={
+            deleteAppointment
+          }
 
-          <h1
-            className="
-              text-2xl
-              font-bold
-              text-blue-700
-            "
-          >
-            {appointment.patient}
-          </h1>
+          onUpdateStatus={
+            updateAppointmentStatus
+          }
 
-          <p
-            className="
-              text-gray-500
-              mt-2
-            "
-          >
-            {appointment.doctor}
-          </p>
-
-          <p
-            className="
-              text-sm
-              text-gray-500
-              mt-2
-            "
-          >
-            Date:
-            {" "}
-            {appointment.date}
-          </p>
-
-          <p
-            className="
-              text-sm
-              text-gray-500
-            "
-          >
-            Time:
-            {" "}
-            {appointment.time}
-          </p>
-
-        </div>
-
-
-        {/* RIGHT SIDE */}
-
-        <div
-          className="
-            flex
-            items-end
-            gap-3
-            px-2
-          "
-        >
-
-          <span
-            className={`
-              px-4
-              py-2
-              rounded-full
-              text-sm
-              font-bold
-
-              ${
-                appointment.status === "Completed"
-
-                  ? "bg-green-100 text-green-700"
-
-                : appointment.status === "Cancelled"
-
-                  ? "bg-red-100 text-red-700"
-
-                : "bg-yellow-100 text-yellow-700"
-              }
-            `}
-          >
-            {appointment.status}
-          </span>
-
-
-          <button
-
-            onClick={() => {
-
-              const newStatus =
-
-                appointment.status ===
-                "Scheduled"
-
-                  ? "Completed"
-
-                : appointment.status ===
-                  "Completed"
-
-                  ? "Cancelled"
-
-                  : "Scheduled";
-
-
-              setAppointments(
-
-                appointments.map(
-
-                  (item) =>
-
-                    item.id ===
-                    appointment.id
-
-                      ? {
-
-                          ...item,
-
-                          status:
-                            newStatus
-
-                        }
-
-                      : item
-
-                )
-
-              );
-
-            }}
-
-            className="
-              bg-blue-500
-              hover:bg-blue-600
-              text-white
-              px-5
-              py-2
-              rounded-xl
-              font-semibold
-            "
-          >
-            Update Status
-          </button>
-
-
-          <button
-
-            onClick={() =>
-
-              deleteAppointment(
-                appointment.id
-              )
-
-            }
-
-            className="
-              bg-red-500
-              hover:bg-red-600
-              text-white
-              px-5
-              py-2
-              rounded-xl
-              font-semibold
-            "
-          >
-            Remove
-          </button>
-
-        </div>
-
-      </div>
+        />
 
       </div>
 
@@ -486,6 +185,37 @@ function Appointments() {
         bg-red-50
       "
     >
+
+      <Sidebar
+
+        sidebarCollapsed={
+          sidebarCollapsed
+        }
+
+        setSidebarCollapsed={
+          setSidebarCollapsed
+        }
+
+      />
+
+      <div
+
+        className={`
+
+          transition-all
+          duration-300
+
+          ${
+            sidebarCollapsed
+
+              ? "ml-20"
+
+              : "ml-72"
+          }
+
+        `}
+
+      >      
 
       <Navbar />
 
@@ -746,9 +476,23 @@ function Appointments() {
 
                 <button
 
-                    onClick={() => {
+                  type="button"
 
-                    addAppointment();
+                  onClick={async () => {
+
+                    await addAppointment({
+
+                      patient: patientName,
+
+                      doctor: doctorName,
+
+                      date: appointmentDate,
+
+                      time: appointmentTime,
+
+                      status: appointmentStatus
+
+                    });
 
                     setPatientName("");
 
@@ -764,7 +508,7 @@ function Appointments() {
 
                     setIsModalOpen(false);
 
-                    }}
+                  }}
 
                     className="
                     flex-1
@@ -782,6 +526,8 @@ function Appointments() {
 
 
                 <button
+
+                    type="button"
 
                     onClick={() =>
 
@@ -822,21 +568,66 @@ function Appointments() {
           "
         >
 
-          <List
+        {
+          appointments.length === 0 ? (
 
-            defaultHeight={650}
-            rowCount={appointments.length}
-            rowHeight={140}
-            rowComponent={Row}
-            rowProps={{ appointments }}
+            <div
+              className="
+                flex
+                flex-col
+                items-center
+                justify-center
+                py-20
+              "
+            >
 
-          >
+              <h2
+                className="
+                  text-5xl
+                  font-bold
+                  text-gray-500
+                "
+              >
+                No Appointments Found
+              </h2>
 
-            {Row}
+              <p
+                className="
+                  text-gray-400
+                  mt-4
+                "
+              >
+                Click Add Appointment
+                to create one.
+              </p>
 
-          </List>
+            </div>
+
+          ) : (
+
+            <List
+
+              defaultHeight={650}
+              rowCount={appointments.length}
+              rowHeight={140}
+              rowComponent={Row}
+              rowProps={{
+
+                appointments
+
+              }}
+
+            >
+
+
+            </List>
+
+          )
+        }
 
         </div>
+
+      </div>
 
       </div>
 

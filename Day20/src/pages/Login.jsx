@@ -58,17 +58,6 @@ function Login() {
 
           role:
             "admin"
-        },
-
-        {
-          email:
-            "user@hospital.com",
-
-          password:
-            "user123",
-
-          role:
-            "user"
         }
 
       ];

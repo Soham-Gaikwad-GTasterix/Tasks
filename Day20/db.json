@@ -1,16 +1,16 @@
 {
   "patients": [
     {
-      "name": "soham",
-      "email": "soham@test.com",
-      "age": "26",
+      "name": "sands sdsa",
+      "email": "szcs",
+      "age": "24",
       "gender": "Male",
-      "disease": "cold",
-      "admissionDate": "2026-05-29",
-      "phone": "1234567890",
-      "bloodGroup": "A+",
-      "roomNumber": "201",
-      "id": "r5_yVsauYHw"
+      "disease": "cbcf",
+      "admissionDate": "2026-05-21",
+      "phone": "54345353",
+      "bloodGroup": "cvbc",
+      "roomNumber": "2564",
+      "id": "5JYXzErSEAg"
     }
   ],
   "doctors": [
@@ -25,6 +25,15 @@
       "id": "EP7vEgEgcaE"
     }
   ],
-  "appointments": [],
+  "appointments": [
+    {
+      "patient": "dsf",
+      "doctor": "sdfd",
+      "date": "2026-05-27",
+      "time": "15:18",
+      "status": "Cancelled",
+      "id": "2g4PoChkRAg"
+    }
+  ],
   "$schema": "./node_modules/json-server/schema.json"
 }

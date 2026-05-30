@@ -26,7 +26,6 @@ function PrivateRoute({
   const { user } =
     useContext(AuthContext);
 
-
   return user
 
     ? children

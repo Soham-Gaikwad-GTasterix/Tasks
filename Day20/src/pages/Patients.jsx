@@ -5,7 +5,16 @@ import Loader from "../components/Loader";
 import PatientCard from "../components/PatientCard";
 import usePatients from "../hooks/usePatients";
 
-function Patients() {
+import Sidebar
+from "../components/Sidebar";
+
+function Patients({
+
+  sidebarCollapsed,
+
+  setSidebarCollapsed
+
+}) {
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
@@ -58,19 +67,54 @@ function Patients() {
   }
 
   if (error) {
+
     return (
+
       <div
         className="
-          text-red-500
-          text-4xl
-          font-bold
-          mt-20
-          text-center
+          min-h-screen
+          bg-gray-100
         "
       >
-        {error}
+
+        <Navbar />
+
+        <div
+          className="
+            flex
+            flex-col
+            items-center
+            justify-center
+            mt-32
+          "
+        >
+
+          <h1
+            className="
+              text-5xl
+              font-bold
+              text-gray-500
+            "
+          >
+            No Patients Found
+          </h1>
+
+          <p
+            className="
+              text-gray-400
+              mt-4
+            "
+          >
+            Click Add Patient
+            to create one.
+          </p>
+
+        </div>
+
       </div>
+
     );
+
   }
 
   return (
@@ -80,6 +124,38 @@ function Patients() {
         bg-gray-100
       "
     >
+
+      <Sidebar
+
+        sidebarCollapsed={
+          sidebarCollapsed
+        }
+
+        setSidebarCollapsed={
+          setSidebarCollapsed
+        }
+
+      />
+
+      <div
+
+        className={`
+
+          transition-all
+          duration-300
+
+          ${
+            sidebarCollapsed
+
+              ? "ml-20"
+
+              : "ml-72"
+          }
+
+        `}
+
+      >
+
       <Navbar />
 
       <div className="p-10">
@@ -103,6 +179,9 @@ function Patients() {
           </h1>
 
           <button
+
+            type="button"
+
             onClick={() => {
               setEditingPatient(null);
 
@@ -350,6 +429,9 @@ function Patients() {
               <div className="flex gap-4">
 
                 <button
+
+                  type="button"
+
                   onClick={() => {
 
                     const patientData = {
@@ -403,6 +485,9 @@ function Patients() {
                 </button>
 
                 <button
+
+                  type="button"
+                  
                   onClick={() =>
                     setIsModalOpen(false)
                   }
@@ -489,6 +574,8 @@ function Patients() {
           ))}
 
         </div>
+
+      </div>
 
       </div>
 
