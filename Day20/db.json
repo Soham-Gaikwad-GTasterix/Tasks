@@ -1,39 +1,6 @@
 {
-  "patients": [
-    {
-      "name": "sands sdsa",
-      "email": "szcs",
-      "age": "24",
-      "gender": "Male",
-      "disease": "cbcf",
-      "admissionDate": "2026-05-21",
-      "phone": "54345353",
-      "bloodGroup": "cvbc",
-      "roomNumber": "2564",
-      "id": "5JYXzErSEAg"
-    }
-  ],
-  "doctors": [
-    {
-      "name": "soham",
-      "email": "soham@hospital.com",
-      "specialization": "surgeon",
-      "experience": "5",
-      "department": "emergency",
-      "qualification": "MBBS",
-      "phone": "0987654322",
-      "id": "EP7vEgEgcaE"
-    }
-  ],
-  "appointments": [
-    {
-      "patient": "dsf",
-      "doctor": "sdfd",
-      "date": "2026-05-27",
-      "time": "15:18",
-      "status": "Cancelled",
-      "id": "2g4PoChkRAg"
-    }
-  ],
+  "patients": [],
+  "doctors": [],
+  "appointments": [],
   "$schema": "./node_modules/json-server/schema.json"
 }
