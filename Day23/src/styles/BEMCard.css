@@ -1,0 +1,34 @@
+.bem-card {
+
+  background: white;
+
+  padding: 2rem;
+
+  border-radius: 1rem;
+
+  box-shadow:
+    0 10px 25px
+    rgba(0,0,0,0.15);
+
+}
+
+.bem-card__title {
+
+  font-size: 1.5rem;
+
+  font-weight: bold;
+
+}
+
+.bem-card__description {
+
+  color: gray;
+
+}
+
+.bem-card--primary {
+
+  border-left:
+    6px solid blue;
+
+}
