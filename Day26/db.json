@@ -1,0 +1,47 @@
+{
+  "patients": [
+    {
+      "name": "soham",
+      "email": "soham@test.com",
+      "age": "26",
+      "gender": "Male",
+      "disease": "flu",
+      "admissionDate": "2026-06-04",
+      "phone": "9876549878",
+      "bloodGroup": "A+",
+      "roomNumber": "201",
+      "id": "Af5Hs73Mn5o"
+    }
+  ],
+  "doctors": [
+    {
+      "name": "raj",
+      "email": "raj@hospital.com",
+      "specialization": "Surgery",
+      "experience": "10+",
+      "department": "Surgery",
+      "qualification": "MBBS",
+      "phone": "1234567890",
+      "id": "KhGQdQgEL0k"
+    }
+  ],
+  "appointments": [
+    {
+      "patient": "soham",
+      "doctor": "raj",
+      "date": "2026-06-05",
+      "time": "19:23",
+      "status": "Scheduled",
+      "id": "E76SeBmJgVI"
+    },
+    {
+      "patient": "ketan",
+      "doctor": "raj",
+      "date": "2026-06-04",
+      "time": "14:36",
+      "status": "Scheduled",
+      "id": "1cFz9qNwTfs"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
