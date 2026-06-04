@@ -44,12 +44,12 @@ function Dashboard({
       style={{ backgroundColor: colors.background }} 
 
       inital={{
-        opicity: 0,
+        opacity: 0,
         y: 30
       }}
 
       animate={{
-        opicity: 1,
+        opacity: 1,
         y: 0
       }}
 
