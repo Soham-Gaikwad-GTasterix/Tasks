@@ -1,0 +1,77 @@
+{
+  "patients": [
+    {
+      "name": "Soham",
+      "email": "soham@test.com",
+      "age": "26",
+      "gender": "Male",
+      "disease": "Flu",
+      "admissionDate": "2026-06-05",
+      "phone": "9518462370",
+      "bloodGroup": "A+",
+      "roomNumber": "201",
+      "id": "aeMFnkSgwqM"
+    },
+    {
+      "name": "Test",
+      "email": "test@test.com",
+      "age": "25",
+      "gender": "Male",
+      "disease": "cold",
+      "admissionDate": "2025-09-06",
+      "phone": "9348687520",
+      "bloodGroup": "B+",
+      "roomNumber": "203",
+      "id": "gawN5O_cnxg"
+    }
+  ],
+  "doctors": [
+    {
+      "name": "Raj",
+      "email": "raj@hospital.com",
+      "specialization": "Surgery",
+      "experience": "10+",
+      "department": "Surgery",
+      "qualification": "MBBS",
+      "phone": "7891230456",
+      "id": "t9AI_h-7w14"
+    },
+    {
+      "name": "test",
+      "email": "test@hospital.com",
+      "specialization": "General Medicine",
+      "experience": "5+",
+      "department": "General Medicine",
+      "qualification": "B. Pharm",
+      "phone": "98745615231",
+      "id": "GAJtfBR5gH4"
+    }
+  ],
+  "appointments": [
+    {
+      "patient": "soham",
+      "doctor": "raj",
+      "date": "2026-06-05",
+      "time": "19:23",
+      "status": "Completed",
+      "id": "E76SeBmJgVI"
+    },
+    {
+      "patient": "ketan",
+      "doctor": "raj",
+      "date": "2026-06-04",
+      "time": "14:36",
+      "status": "Scheduled",
+      "id": "1cFz9qNwTfs"
+    },
+    {
+      "patient": "rahul",
+      "doctor": "raj",
+      "date": "2026-06-10",
+      "time": "17:15",
+      "status": "Cancelled",
+      "id": "FuHIZMmCi-0"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
