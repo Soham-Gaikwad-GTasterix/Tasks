@@ -1,0 +1,46 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "admin@hospital.com",
+      "password": "admin123"
+    }
+  ],
+  "patients": [
+    {
+      "id": "PAT-nwIXAVRi",
+      "name": "Soham",
+      "email": "soham@test.com",
+      "age": "23",
+      "gender": "M",
+      "disease": "Flu",
+      "date": "223333",
+      "phoneNo": "1233445589",
+      "bloodGroup": "B",
+      "roomNo": "211"
+    }
+  ],
+  "doctors": [
+    {
+      "id": "DOC-9IxPYxak",
+      "name": "Raj",
+      "email": "raj@hospital.com",
+      "specialization": "Mdh",
+      "experience": "29n",
+      "department": "Nxj",
+      "qualification": "Jnshj",
+      "phoneNo": "9e7737"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "APT-HXqggRdJ",
+      "patient": "Soham",
+      "doctor": "Raj",
+      "date": "737377",
+      "time": "8282",
+      "status": "Sjjsnd"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
