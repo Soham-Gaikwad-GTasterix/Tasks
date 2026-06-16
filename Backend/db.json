@@ -14,10 +14,22 @@
       "age": "23",
       "gender": "M",
       "disease": "Flu",
-      "date": "223333",
+      "date": "2026-06-20",
       "phoneNo": "1233445589",
       "bloodGroup": "B",
       "roomNo": "211"
+    },
+    {
+      "id": "PAT-iBG28YUH",
+      "gender": "Male",
+      "bloodGroup": "O+",
+      "name": "Test",
+      "email": "test@test.com",
+      "age": "26",
+      "disease": "Cold",
+      "date": "2026-06-16",
+      "phoneNo": "9768312450",
+      "roomNo": "212"
     }
   ],
   "doctors": [
@@ -29,7 +41,17 @@
       "experience": "29n",
       "department": "Nxj",
       "qualification": "Jnshj",
-      "phoneNo": "9e7737"
+      "phoneNo": "9725435432"
+    },
+    {
+      "id": "DOC-1dDCapwT",
+      "name": "Test",
+      "email": "test@test.com",
+      "specialization": "Test",
+      "experience": "10",
+      "department": "Test",
+      "qualification": "Test",
+      "phoneNo": "9784651386"
     }
   ],
   "appointments": [
@@ -37,9 +59,17 @@
       "id": "APT-HXqggRdJ",
       "patient": "Soham",
       "doctor": "Raj",
-      "date": "737377",
-      "time": "8282",
-      "status": "Sjjsnd"
+      "date": "2026-06-04",
+      "time": "1:46 PM",
+      "status": "Completed"
+    },
+    {
+      "id": "APT-A2hS_v67",
+      "patient": "Soham",
+      "doctor": "Raj",
+      "date": "2026-06-16",
+      "time": "9:27 PM",
+      "status": "Scheduled"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
