@@ -8,67 +8,71 @@
   ],
   "patients": [
     {
-      "id": "PAT-nwIXAVRi",
-      "name": "Soham",
-      "email": "soham@test.com",
-      "age": "23",
-      "gender": "M",
+      "id": "PAT-4alxaDG5",
+      "name": "Test Male",
+      "email": "test@test.com",
+      "age": "25",
+      "gender": "Male",
       "disease": "Flu",
-      "date": "2026-06-20",
-      "phoneNo": "1233445589",
-      "bloodGroup": "B",
-      "roomNo": "211"
+      "date": "2026-06-17",
+      "phoneNo": "9864637676",
+      "bloodGroup": "A+",
+      "roomNo": "201",
+      "photo": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FDay36-0eaf758f-9b09-48ba-8b7a-a89cbc08f469/ImagePicker/068bb4be-3b75-4c4e-b4f4-72282bc5fb08.jpeg"
     },
     {
-      "id": "PAT-iBG28YUH",
-      "gender": "Male",
-      "bloodGroup": "O+",
-      "name": "Test",
+      "id": "PAT-tO6dam7V",
+      "name": "Test Female",
       "email": "test@test.com",
-      "age": "26",
+      "age": "25",
+      "gender": "Female",
       "disease": "Cold",
-      "date": "2026-06-16",
-      "phoneNo": "9768312450",
-      "roomNo": "212"
+      "date": "2026-06-17",
+      "phoneNo": "8864664949",
+      "bloodGroup": "B+",
+      "roomNo": "202",
+      "photo": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FDay36-0eaf758f-9b09-48ba-8b7a-a89cbc08f469/ImagePicker/3fec6b0e-95c5-445c-819a-2eddd6853c61.jpeg"
     }
   ],
   "doctors": [
     {
-      "id": "DOC-9IxPYxak",
+      "id": "DOC-4uM7YyeO",
       "name": "Raj",
       "email": "raj@hospital.com",
-      "specialization": "Mdh",
-      "experience": "29n",
-      "department": "Nxj",
-      "qualification": "Jnshj",
-      "phoneNo": "9725435432"
+      "specialization": "Surgery",
+      "experience": "10",
+      "department": "Surgery",
+      "qualification": "MBBS",
+      "phoneNo": "9876160351",
+      "photo": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FDay36-0eaf758f-9b09-48ba-8b7a-a89cbc08f469/ImagePicker/dd81bb0d-6b3c-4bab-af58-2718da939433.jpeg"
     },
     {
-      "id": "DOC-1dDCapwT",
+      "id": "DOC-jZbhXXxK",
       "name": "Test",
-      "email": "test@test.com",
+      "email": "test@hospital.com",
       "specialization": "Test",
-      "experience": "10",
-      "department": "Test",
+      "experience": "5",
+      "department": "Test ",
       "qualification": "Test",
-      "phoneNo": "9784651386"
+      "phoneNo": "9464376181",
+      "photo": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FDay36-0eaf758f-9b09-48ba-8b7a-a89cbc08f469/ImagePicker/f0b7134a-c9c0-40a7-b173-5537c2c3e30f.jpeg"
     }
   ],
   "appointments": [
     {
-      "id": "APT-HXqggRdJ",
-      "patient": "Soham",
-      "doctor": "Raj",
-      "date": "2026-06-04",
-      "time": "1:46 PM",
-      "status": "Completed"
+      "id": "APT-G0Y-vs9g",
+      "patient": "Test",
+      "doctor": "Test",
+      "date": "2026-06-17",
+      "time": "17:23",
+      "status": "Scheduled"
     },
     {
-      "id": "APT-A2hS_v67",
+      "id": "APT-7Y0J196J",
       "patient": "Soham",
       "doctor": "Raj",
-      "date": "2026-06-16",
-      "time": "9:27 PM",
+      "date": "2026-06-17",
+      "time": "17:30",
       "status": "Scheduled"
     }
   ],
