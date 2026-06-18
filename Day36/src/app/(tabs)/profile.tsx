@@ -14,6 +14,8 @@ import * as ImagePicker from "expo-image-picker";
 
 import { CameraView, useCameraPermissions } from "expo-camera";
 
+import * as Linking from "expo-linking";
+
 export default function Profile() {
 
     const [photo, setPhoto] = useState(null);

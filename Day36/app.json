@@ -2,7 +2,7 @@
   "expo": {
     "name": "Day36",
     "slug": "Day36",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "hospitalapp",
@@ -46,6 +46,12 @@
       "eas": {
         "projectId": "80c6e8da-3d96-4c00-a6d4-85804f3a295a"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/80c6e8da-3d96-4c00-a6d4-85804f3a295a"
     }
   }
 }
