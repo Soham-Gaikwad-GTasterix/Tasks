@@ -2,28 +2,26 @@
 
 ## Hospital Management System
 
-React Natice Expo Frontend
-↓
-Service Layer
+    React Native Expo Frontend
+               ↓
+         Service Layer
+           - authService.js
+           - patientService.js
+           - doctorService.js
+           - appointmentService.js
+           - notificationService.js
 
-    - authService.js
-    - patientService.js
-    - doctorService.js
-    - appointmentService.js
-    - notificationService.js
+               ↓
+         Axios API Layer
+           - api.js
 
-↓
-Axios API Layer
-
-    - api.js
-
-↓
-Express Backend
-↓
-MongoDB Atlas
+               ↓
+         Express Backend
+               ↓
+         MongoDB Atlas
 
 ## Storage Layer
 
-- authStorage
-- AsyncStorage
-- JWT Token Storage
+    - authStorage
+    - AsyncStorage
+    - JWT Token Storage
