@@ -1,4 +1,4 @@
-import { ScrollView, View } from "react-native";
+import { View, KeyboardAvoidingView, ScrollView, Platform  } from "react-native";
 
 import { router, useLocalSearchParams } from "expo-router";
 
@@ -190,28 +190,44 @@ export default function EditDetails() {
     }
 
     return (
-        <ScrollView
+        <KeyboardAvoidingView
             style={{
-                flex: 1,
-                marginTop: 30
+                flex:1
             }}
+            behavior={
+                Platform.OS === "ios"
+                    ? "padding"
+                    : "height"   
+            }
         >
-            <NavigationHeader
-                title={`Edit ${params.type}`}
-                showBack
-            />
-            <View
+            <ScrollView
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{
+                    paddingBottom: 50
+                }}
                 style={{
-                    padding: 20
+                    flex: 1,
+                    marginTop: 30
                 }}
             >
-                <DynamicForm
-                    fields={getFields()}
-                    initialValues={data}
-                    buttonText="Update"
-                    onSubmit={handleSubmit}
+                <NavigationHeader
+                    title={`Edit ${params.type}`}
+                    showBack
                 />
-            </View>
-        </ScrollView>
+                <View
+                    style={{
+                        padding: 20
+                    }}
+                >
+                    <DynamicForm
+                        fields={getFields()}
+                        initialValues={data}
+                        buttonText="Update"
+                        onSubmit={handleSubmit}
+                    />
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
+        
     );
 }

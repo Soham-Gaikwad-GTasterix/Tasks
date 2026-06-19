@@ -151,7 +151,7 @@ function DynamicForm({
                             >
                                 <Picker.Item
                                     label={field.placeholder}
-                                    placeholderTextColor="#555"
+                                    color="#000"
                                     value=""
                                 />
                                 {
@@ -161,6 +161,7 @@ function DynamicForm({
                                                 key={option}
                                                 label={option}
                                                 value={option}
+                                                color="#000"
                                             />
                                         )
                                     )
