@@ -18,19 +18,6 @@ import { addToQueue } from "@/services/offlineQueueService";
 
 export default function AddAppointment() {
 
-    const state = await NetInfo.fetch();
-
-    if (state.isConnected) {
-        await createAppointment(data);
-    } else {
-        await addToQueue({
-            method: "POST",
-            endpoint: "/appontments",
-            data
-        });
-        alert("Saved offline. Will sync later.");
-    }
-
     return (
         <KeyboardAvoidingView
                     style={{
@@ -103,6 +90,21 @@ export default function AddAppointment() {
                                                 id: `APT-${nanoid(8)}`,
                                                 ...data
                                             });
+
+                                            const state = await NetInfo.fetch();
+
+                                            if (state.isConnected) {
+                                                await createAppointment(data);
+                                            } else {
+                                                await addToQueue({
+                                                    method: "POST",
+                                                    endpoint: "/appointments",
+                                                    data: data
+                                                });
+                                                alert("Saved offline. Will sync later.");
+                                                router.back();
+                                                return;
+                                            }
 
                                             await scheduleAppointmentTimeNotifications(data);
 

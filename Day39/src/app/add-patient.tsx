@@ -16,19 +16,6 @@ import { addToQueue } from "@/services/offlineQueueService";
 
 export default function AddPatient() {
 
-    const state = await NetInfo.fetch();
-
-    if (state.isConnected) {
-        await createPatient(data);
-    } else {
-        await addToQueue({
-            method: "POST",
-            endpoint: "/patients",
-            data
-        });
-        alert("Saved offline. Will sync later.");
-    }
-
     return(
 
         <KeyboardAvoidingView
@@ -139,6 +126,21 @@ export default function AddPatient() {
                                         id: `PAT-${nanoid(8)}`,
                                         ...data
                                     });
+                                    
+                                    const state = await NetInfo.fetch();
+
+                                    if (state.isConnected) {
+                                        await createPatient(data);
+                                    } else {
+                                        await addToQueue({
+                                            method: "POST",
+                                            endpoint: "/patients",
+                                            data
+                                        });
+                                        alert("Saved offline. Will sync later.");
+                                        router.back();
+                                        return;
+                                    }
 
                                     alert( "Patient Added" );
 
