@@ -1,16 +1,18 @@
 import { View, Alert, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 
-import NavigationHeader from "../components/NavigationHeader";
+import NavigationHeader from "@/components/NavigationHeader";
 
-import DynamicForm from "../components/DynamicForm";
+import DynamicForm from "@/components/DynamicForm";
 
 import { router } from "expo-router";
 
-import { createAppointment } from "../services/appointmentService";
+import { createAppointment, getAppointments } from "@/services/appointmentService";
 
 import { nanoid } from "nanoid";
 
 import { getDoctors } from "@/services/doctorService";
+
+import { getUser } from "@/storage/authStorage";
 
 import { useState, useEffect } from "react";
 
@@ -33,6 +35,58 @@ export default function AddAppointment() {
         }
     }
 
+    async function handleBookAppointment(data) {
+        const user = await getUser();
+        const appointments = await getAppointments();
+
+        const selectedDateTime = new Date(
+            `${data.date}T${data.time}`
+        );
+
+        const now = new Date();
+
+        if (selectedDateTime <= now) {
+            Alert.alert(
+                "Invalid Appointment",
+                "Please select a future date and time."
+            );
+
+            return false;
+        }
+
+        const existingAppointment = appointments.find(
+            appointment =>
+                appointment.patientUserId === user.patientId &&
+                appointment.status === "Scheduled"
+        );
+
+        if (existingAppointment) {
+            Alert.alert(
+                "Appointment Already Exists",
+                "You already have a scheduled appointment."
+            );
+            return false;
+    }
+
+    const doctorBusy = appointments.find(
+        appointment =>
+            appointment.doctorId === data.doctorId &&
+            appointment.date === data.date &&
+            appointment.time === data.time &&
+            appointment.status === "Scheduled"
+    );
+
+    if (doctorBusy) {
+        Alert.alert(
+            "Slot Unavailable",
+            "The selected doctor already has an appointment at this time."
+        );
+        return false;
+    }
+
+    return true;
+}
+
     return (
         <KeyboardAvoidingView
                     style={{
@@ -53,7 +107,7 @@ export default function AddAppointment() {
                         <View
                             style={{
                                 flex: 1,
-                                marginTop: 30
+                                backgroundColor: "#f4f8fc"
                             }}
                         >
 
@@ -63,16 +117,13 @@ export default function AddAppointment() {
                             />
                             <View
                                 style={{
-                                    padding: 20
+                                    padding: 20,
+                                    backgroundColor: "#fff"
                                 }}
                             >
                                 <DynamicForm
                                     buttonText="Add Appointment"
                                     fields={[
-                                        {
-                                            name: "patient",
-                                            placeholder: "Patient Name"
-                                        },
                                         {
                                             name: "doctorId",
                                             placeholder: "Select Doctor",
@@ -88,39 +139,54 @@ export default function AddAppointment() {
                                             name: "time",
                                             placeholder: "Appointment Time",
                                             type: "time"
-                                        },
-                                        {
-                                            name: "status",
-                                            placeholder: "Status",
-                                            type: "select",
-                                            options: [
-                                                "Scheduled",
-                                                "Completed",
-                                                "Cancelled"
-                                            ]
                                         }
                                     ]}
                                     onSubmit={async (data) => {
 
                                         try {
 
+                                            const currentUser = await getUser();
+
+                                            console.log("CURRENT USER =", currentUser);
+                                            
+                                            const canBook = await handleBookAppointment(data);
+
+                                            if (!canBook) {
+                                                return;
+                                            }
+                                            
                                             const selectedDoctor = doctors.find(
                                                 doctor => doctor.id === data.doctorId
                                             );
 
-                                            await createAppointment({
+                                            console.log(currentUser);
+
+                                            const appointmentData = {
                                                 id: `APT-${nanoid(8)}`,
-                                                patient: data.patient,
-                                                doctor: selectedDoctor?.name,
-                                                doctorId: selectedDoctor?.id,
+                                                patientUserId: currentUser.patientUserId,
+                                                patient: currentUser.name,
+                                                patientEmail: currentUser.email,
+                                                age: currentUser.age,
+                                                gender: currentUser.gender,
+                                                phoneNo: currentUser.phoneNo,
+                                                bloodGroup: currentUser.bloodGroup,
+                                                photo: currentUser.photo,
+                                                doctor: selectedDoctor.name,
+                                                doctorId: selectedDoctor.id,
                                                 date: data.date,
                                                 time: data.time,
-                                                status: data.status
-                                            });
+                                                status: "Scheduled"
+                                            };
+
+                                            console.log("SENDING =", appointmentData);
+
+                                            await createAppointment(appointmentData);
 
                                             await scheduleAppointmentTimeNotifications({
-                                                ...data,
-                                                doctor: selectedDoctor?.name
+                                                patient: currentUser.name,
+                                                doctor: selectedDoctor?.name,
+                                                date: data.date,
+                                                time: data.time
                                             });
 
                                             Alert.alert(
@@ -150,6 +216,11 @@ export default function AddAppointment() {
                                             console.log(error);
 
                                             alert("Failed to Add Appointment");
+
+                                            Alert.alert(
+                                                "Error",
+                                                JSON.stringify(error.response?.data || error.message)
+                                            );
                                         }
                                     }}
                                 />

@@ -6,7 +6,7 @@ import { router } from "expo-router";
 
 import { login } from "../services/authService";
 
-import { saveToken } from "../storage/authStorage";
+import { saveSession } from "../storage/authStorage";
 
 import CustomButton from "../components/CustomButton";
 
@@ -32,13 +32,23 @@ export default function Login() {
                     password
                 );
             
-            await saveToken(
-                data.token
+            await saveSession(
+                data.token,
+                data.user
             );
 
-            router.replace(
-                "/(tabs)"
-            );
+            if (
+                data.user.role === "admin"
+            ) {
+                router.replace(
+                    "/(tabs)"
+                );
+            } else {
+                router.replace(
+                    "/(doctor-tabs)"
+                );
+            }
+            
         } catch (error) {
             console.log("Logi Error: ", error);
 

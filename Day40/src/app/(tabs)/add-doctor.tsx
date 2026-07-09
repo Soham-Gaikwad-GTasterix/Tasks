@@ -1,16 +1,16 @@
-import { View, KeyboardAvoidingView, ScrollView, Platform, Alert } from "react-native";
+import { View, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 
-import NavigationHeader from "../components/NavigationHeader";
+import NavigationHeader from "@/components/NavigationHeader";
 
-import DynamicForm from "../components/DynamicForm";
+import DynamicForm from "@/components/DynamicForm";
 
 import { router } from "expo-router";
 
-import { createPatient } from "../services/patientService";
+import { createDoctor } from "@/services/doctorService";
 
 import { nanoid } from "nanoid";
 
-export default function AddPatient() {
+export default function AddDoctor() {
 
     return(
 
@@ -33,24 +33,25 @@ export default function AddPatient() {
                 <View
                     style={{
                         flex: 1,
-                        marginTop: 30
+                        backgroundColor: "#f4f8fc"
                     }}
                 >
                     <NavigationHeader
-                        title="Add Patient"
+                        title="Add Doctor"
                         showBack
                     />
                     <View
                         style={{
-                            padding: 20
+                            padding: 20,
+                            backgroundColor: "fff"
                         }}
                     >
                         <DynamicForm
-                            buttonText="Add Patient"
+                            buttonText="Add Doctor"
                             fields={[
                                 {
                                     name: "name",
-                                    placeholder: "Patient Name"
+                                    placeholder: "Doctor Name"
                                 },
                                 {
                                     name: "email",
@@ -59,28 +60,22 @@ export default function AddPatient() {
                                     maxLength: 50
                                 },
                                 {
-                                    name: "age",
-                                    placeholder: "Age",
-                                    keyboardType: "numeric"
+                                    name: "specialization",
+                                    placeholder: "Specialization"
                                 },
                                 {
-                                    name: "gender",
-                                    placeholder: "Gender",
-                                    type: "select",
-                                    options: [
-                                        "Male",
-                                        "Female",
-                                        "Other"
-                                    ]
+                                    name: "experience",
+                                    placeholder: "Experience",
+                                    keyboardType: "numeric",
+                                    maxLength: 2
                                 },
                                 {
-                                    name: "disease",
-                                    placeholder: "Disease"
+                                    name: "department",
+                                    placeholder: "Department"
                                 },
                                 {
-                                    name: "date",
-                                    placeholder: "Admission Date",
-                                    type: "date"
+                                    name: "qualification",
+                                    placeholder: "Qualification"
                                 },
                                 {
                                     name: "phoneNo",
@@ -89,25 +84,10 @@ export default function AddPatient() {
                                     maxLength: 10
                                 },
                                 {
-                                    name: "bloodGroup",
-                                    placeholder: "Blood Group",
-                                    type: "select",
-                                    options: [
-                                        "A+",
-                                        "A-",
-                                        "B+",
-                                        "B-",
-                                        "AB+",
-                                        "AB-",
-                                        "O+",
-                                        "O-",
-                                        "unknown"
-                                    ]
-                                },
-                                {
-                                    name: "roomNo",
-                                    placeholder: "Room No.",
-                                    keyboardType: "numeric"
+                                    name: "password",
+                                    placeholder: "Password",
+                                    maxLength: 20,
+                                    secureTextEntry: true
                                 },
                                 {
                                     name: "photo",
@@ -116,23 +96,21 @@ export default function AddPatient() {
                                 }
                             ]}
                             onSubmit={async (data) => {
-
                                 try {
-                                    await createPatient({
-                                        id: `PAT-${nanoid(8)}`,
+
+                                    await createDoctor({
+                                        id: `DOC-${nanoid(8)}`,
+                                        role: "doctor",
                                         ...data
                                     });
 
-                                    alert( "Patient Added" );
+                                    alert("Doctor Added");
 
                                     router.back();
-                                } catch (
-                                    error
-                                ) {
+                                } catch (error) {
                                     console.log(error);
 
-                                    alert("Failed to Add Patient");
-
+                                    alert("Failed to Add Doctor");
                                 }
                             }}
                         />
@@ -140,5 +118,5 @@ export default function AddPatient() {
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
-    );
+    )
 }

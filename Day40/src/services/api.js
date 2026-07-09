@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "https://hospital-backend-2o21.onrender.com",
+    baseURL: "Your Backend URL",
     timeout: 10000
 });
 

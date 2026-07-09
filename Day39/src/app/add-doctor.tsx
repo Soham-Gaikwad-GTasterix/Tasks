@@ -10,10 +10,6 @@ import { createDoctor } from "../services/doctorService";
 
 import { nanoid } from "nanoid";
 
-import NetInfo from "@react-native-community/netinfo";
-
-import { addToQueue } from "@/services/offlineQueueService";
-
 export default function AddDoctor() {
 
     return(
@@ -105,21 +101,6 @@ export default function AddDoctor() {
                                         id: `DOC-${nanoid(8)}`,
                                         ...data
                                     });
-                                    
-                                    const state = await NetInfo.fetch();
-
-                                    if (state.isConnected) {
-                                        await createDoctor(data);
-                                    } else {
-                                        await addToQueue({
-                                            method: "POST",
-                                            endpoint: "/doctors",
-                                            data
-                                        });
-                                        alert("Saved offline. Will sync later.");
-                                        router.back();
-                                        return;
-                                    }
 
                                     alert( "Doctor Added" );
 

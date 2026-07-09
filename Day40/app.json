@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Day39",
-    "slug": "day39",
-    "version": "2.0.2",
+    "name": "HMS",
+    "slug": "hospital-management-system",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "day39",
+    "scheme": "day40",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.hospital.gs"
+      "package": "com.hospital.system"
     },
     "web": {
       "output": "static",
@@ -44,7 +44,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "bb385f5e-b39b-41df-8c63-50fb697ff373"
+        "projectId": "e21c9fd8-d1eb-4699-99b5-311de8d41833"
       }
     },
     "owner": "soham_gaikwad",
@@ -52,7 +52,7 @@
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/bb385f5e-b39b-41df-8c63-50fb697ff373"
+      "url": "https://u.expo.dev/e21c9fd8-d1eb-4699-99b5-311de8d41833"
     }
   }
 }

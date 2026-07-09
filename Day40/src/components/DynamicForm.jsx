@@ -6,7 +6,7 @@ import CustomButton from "./CustomButton";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-import { Picker } from "@react-native-picker/picker";
+import { Dropdown } from "react-native-element-dropdown";
 
 import * as ImagePicker from "expo-image-picker";
 
@@ -68,26 +68,36 @@ function DynamicForm({
         if (
             formData.email && !/^\S+@\S+\.\S+$/.test(formData.email)
         ) {
-            Alert.alert("Invalid Email");
+            Alert.alert("Invalid Email", "Please enter a valid email address.");
             return false;
         }
         if (
             formData.age && Number(formData.age) < 0
         ) {
-            Alert.alert("Age cannot be negative");
+            Alert.alert("Invalid Age Value", "Age cannot be negative");
+            return false;
+        }
+        if (
+            formData.experience && Number(formData.experience) < 0
+        ) {
+            Alert.alert("Invalid Experience", "Experience cannot be negative");
             return false;
         }
         if (
             formData.phoneNo && !/^\d{10}$/.test(formData.phoneNo)
         ) {
-            Alert.alert("Phone Number must be 10 digits");
+            Alert.alert("Invalid Phane Number", "Phone Number must be 10 digits");
             return false;
         }
         return true;
     }
 
     return(
-        <View>
+        <View
+            style={{
+                backgroundColor: "#f4f8fc"
+            }}
+        >
             {fields.map(field => {
 
                 if (
@@ -97,38 +107,58 @@ function DynamicForm({
                         <View
                             key={field.name}
                             style={{
+                                backgroundColor: "#fff",
                                 borderWidth: 1,
-                                borderRadius: 12,
-                                marginBottom: 12
+                                borderRadius: 18,
+                                marginBottom: 18,
+                                borderColor: "#e2e8f0",
+                                elevation: 3,
+                                shadowColor: "#000",
+                                shadowOpacity: 0.08,
+                                shadowRadius: 6,
+                                shadowOffset: {
+                                    width: 0,
+                                    height: 3
+                                }
                             }}
                         >
-                            <Picker
-                                selectedValue={
-                                    formData[field.name] || ""
-                                }
-                                onValueChange={(value) =>
+                            <Dropdown
+                                style={{
+                                    height: 58,
+                                    backgroundColor: "#fff",
+                                    borderRadius: 18,
+                                    paddingHorizontal: 18,
+                                    borderWidth: 1,
+                                    borderColor: "#e2e8f0",
+                                    elevation: 3
+                                }}
+                                placeholderStyle={{
+                                    color: "#94a3b8",
+                                    fontSize: 16
+                                }}
+                                data={field.options.map(
+                                    doctor => ({
+                                        label: doctor.name,
+                                        value: doctor.id
+                                    })
+                                )}
+                                labelField="label"
+                                valueField="value"
+                                placeholder="Select Doctor"
+                                value={formData[field.name]}
+                                onChange={item =>
                                     handleChange(
                                         field.name,
-                                        value
+                                        item.value
                                     )
                                 }
-                            >
-                                <Picker.Item
-                                    label="Select Doctor"
-                                    color="#000"
-                                    value=""
-                                />
-                                {field.options?.map(
-                                    doctor => (
-                                        <Picker.Item
-                                            key={doctor.id}
-                                            label={doctor.name}
-                                            value={doctor.id}
-                                            color="#000"
-                                        />
-                                    )
-                                )}
-                            </Picker>
+                                search
+                                maxHeight={300}
+                                activeColor="#dbeafe"
+                                containerStyle={{
+                                    borderRadius: 18
+                                }}
+                            />
                         </View>
                     );
                 }
@@ -156,11 +186,13 @@ function DynamicForm({
                                             uri: formData[field.name]
                                         }}
                                         style={{
-                                            width: 120,
-                                            height: 120,
-                                            borderRadius: 60,
+                                            width: 150,
+                                            height: 150,
+                                            borderRadius: 75,
+                                            borderWidth: 4,
+                                            borderColor: "#2563eb",
                                             alignSelf: "center",
-                                            marginTop: 10
+                                            marginTop: 16
                                         }}
                                     />
                                 )
@@ -176,40 +208,58 @@ function DynamicForm({
                         <View
                             key={field.name}
                             style={{
+                                backgroundColor: "#fff",
                                 borderWidth: 1,
-                                borderRadius: 12,
-                                marginBottom: 12
+                                borderRadius: 18,
+                                marginBottom: 18,
+                                borderColor: "#e2e8f0",
+                                elevation: 3,
+                                shadowColor: "#000",
+                                shadowOpacity: 0.08,
+                                shadowRadius: 6,
+                                shadowOffset: {
+                                    width: 0,
+                                    height: 3
+                                }
                             }}
                         >
-                            <Picker
-                                selectedValue={
-                                    formData[
-                                        field.name
-                                    ] || ""
-                                }
-                                onValueChange={(value) => handleChange(
-                                    field.name,
-                                    value
+                            <Dropdown
+                                style={{
+                                    height: 58,
+                                    backgroundColor: "#fff",
+                                    borderRadius: 18,
+                                    paddingHorizontal: 18,
+                                    borderWidth: 1,
+                                    borderColor: "#e2e8f0",
+                                    elevation: 3
+                                }}
+                                placeholderStyle={{
+                                    color: "#94a3b8",
+                                    fontSize: 16
+                                }}
+                                data={field.options.map(
+                                    option => ({
+                                        label: option,
+                                        value: option
+                                    })
                                 )}
-                            >
-                                <Picker.Item
-                                    label={field.placeholder}
-                                    color="#000"
-                                    value=""
-                                />
-                                {
-                                    field.options.map(
-                                        option => (
-                                            <Picker.Item
-                                                key={option}
-                                                label={option}
-                                                value={option}
-                                                color="#000"
-                                            />
-                                        )
+                                labelField="label"
+                                valueField="value"
+                                placeholder={field.placeholder}
+                                value={formData[field.name]}
+                                onChange={item =>
+                                    handleChange(
+                                        field.name,
+                                        item.value
                                     )
                                 }
-                            </Picker>
+                                search
+                                maxHeight={300}
+                                activeColor="#dbeafe"
+                                containerStyle={{
+                                    borderRadius: 18
+                                }}
+                            />
                         </View>
                     );
                 }
@@ -226,10 +276,20 @@ function DynamicForm({
                                 setShowDatePicker(true);
                             }}
                             style={{
+                                backgroundColor: "#fff",
                                 borderWidth: 1,
-                                borderRadius: 12,
-                                padding: 12,
-                                marginBottom: 12
+                                borderRadius: 18,
+                                padding: 18,
+                                marginBottom: 18,
+                                borderColor: "#e2e8f0",
+                                elevation: 3,
+                                shadowColor: "#000",
+                                shadowOpacity: 0.08,
+                                shadowRadius: 6,
+                                shadowOffset: {
+                                    width: 0,
+                                    height: 3
+                                }
                             }}
                         >
                             <Text>
@@ -264,11 +324,22 @@ function DynamicForm({
                         secureTextEntry={field.secureTextEntry || false}
                         style={{
                             borderWidth: 1,
-                            borderRadius: 12,
-                            padding: 12,
-                            marginBottom: 12,
-                            color: "#000",
-                            backgroundColor: "#fff"
+                            borderRadius: 18,
+                            paddingHorizontal: 18,
+                            paddingVertical:16,
+                            marginBottom: 18,
+                            color: "#0f172a",
+                            backgroundColor: "#fff",
+                            fontSize: 16,
+                            borderColor: "#e2e8f0",
+                            elevation: 6,
+                            shadowColor: "#000",
+                            shadowOpacity: 0.08,
+                            shadowRadius: 6,
+                            shadowOffset: {
+                                width: 0,
+                                height: 3
+                            }
                         }}
                     />
                 );
