@@ -146,7 +146,7 @@ export default function DoctorDashboard() {
                 fontSize: 16
               }}
             >
-              Welcome Back
+              Welcome
             </Text>
             <Text
               style={{
@@ -234,9 +234,28 @@ export default function DoctorDashboard() {
                 </View>
               ) : (
                 appointments
-                    .slice(0, 5)
-                    .map(
-                        appointment => (
+                  .sort((a, b) => {
+                      
+                      if (a.status === "Scheduled" && b.status !== "Scheduled") {
+                        return -1;
+                      }
+
+                      if (a.status !== "Scheduled" && b.status === "Scheduled") {
+                        return 1;
+                      }
+
+                      const dateCompare =
+                        new Date(`${b.date} ${b.time}`) -
+                        new Date(`${a.date} ${a.time}`);
+
+                      if (dateCompare !== 0) {
+                        return dateCompare;
+                      }
+
+                      return (b.createdAt || "").localeCompare(a.createdAt || "");
+                  })
+                  .slice(0, 5)
+                  .map(appointment => (
                             <View
                               key={appointment.id}
                               style={{

@@ -132,7 +132,7 @@ export default function HomeScreen() {
                 fontSize: 16
               }}
             >
-              Welcome Back
+              Welcome
             </Text>
             <Text
               style={{

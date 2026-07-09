@@ -1,6 +1,6 @@
-import { View, Text, Image, TextInput, KeyboardAvoidingView, ScrollView, Platform, Alert } from "react-native";
+import { View, Text, Image, TextInput, KeyboardAvoidingView, ScrollView, Platform, Pressable } from "react-native";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { router, useLocalSearchParams } from "expo-router";
 
@@ -10,9 +10,9 @@ import DynamicForm from "@/components/DynamicForm";
 
 import CustomButton from "@/components/CustomButton";
 
-import { updatePatient } from "@/services/patientService";
-
 import { updateDoctor } from "@/services/doctorService";
+
+import { updatePatient, getPatients } from "@/services/patientService";
 
 export default function EditDetails() {
     const params = useLocalSearchParams();
@@ -21,7 +21,81 @@ export default function EditDetails() {
 
     const [disease, setDisease] = useState(data.disease);
 
-    const [roomNo, setRoomNo] = useState(data.roomNo);
+    const currentRoom = (data.roomNo || "").match(/\d+/)?.[0] || "";
+
+    const currentPrefix = currentRoom.charAt(0);
+
+    const floorMap = {
+        "0": "General",
+        "1": "Semi",
+        "2": "ICU",
+        "3": "Private",
+        "4": "Deluxe"
+    };
+
+    const [selectedFloor, setSelectedFloor] = useState(
+        floorMap[currentPrefix] || "General"
+    );
+
+    const [roomNo, setRoomNo] = useState(currentRoom);
+
+    const [occupiedRooms, setOccupiedRooms] = useState([]);
+
+    useEffect(() => {
+        async function loadOccupiedRooms() {
+            const patients = await getPatients();
+
+            setOccupiedRooms(
+                patients
+                    .filter(
+                        patient =>
+                            patient.status === "Admitted" &&
+                            patient.id !== data.id
+                    )
+                    .map(
+                        patient => patient.roomNo
+                    )
+            );
+        }
+
+        if (params.type === "patient") {
+            loadOccupiedRooms();
+        }
+    }, []);
+
+    const roomConfig = {
+        General: {
+            prefix: 0,
+            count: 50
+        },
+        Semi: {
+            prefix: 1,
+            count: 20
+        },
+        ICU: {
+            prefix: 2,
+            count: 10
+        },
+        Private: {
+            prefix: 3,
+            count: 15
+        },
+        Deluxe: {
+            prefix: 4,
+            count: 10
+        }
+    };
+
+    const currentFloor =
+        roomConfig[selectedFloor] || roomConfig.General;
+
+    const rooms = Array.from(
+        {
+            length: currentFloor.count
+        },
+        (_, index) =>
+            `${currentFloor.prefix}${String(index + 1).padStart(2, "0")}`
+    );
 
     function getFields() {
         switch (params.type) {
@@ -225,29 +299,174 @@ export default function EditDetails() {
                                     <Text
                                         style={{
                                             color: "#64748b",
-                                            fontSize: 14,
-                                            marginBottom: 6
+                                            marginTop: 8,
+                                            marginBottom: 10
                                         }}
                                     >
-                                        Room No.
+                                        Select Room
                                     </Text>
-
-                                    <TextInput
-                                        value={roomNo}
-                                        editable={params.role === "admin"}
-                                        onChangeText={setRoomNo}
+                                    
+                                    <View
                                         style={{
-                                            backgroundColor:
-                                                params.role === "admin"
-                                                    ? "#fff"
-                                                    : "#f8fafc",
-                                            borderWidth: 1,
-                                            borderColor: "#2563eb",
-                                            borderRadius: 12,
-                                            padding: 14,
-                                            color: "#0f172a"
+                                            flexDirection: "row",
+                                            justifyContent: "space-between",
+                                            marginBottom: 20
                                         }}
-                                    />
+                                    >
+                                        {Object.keys(roomConfig).map(floor => (
+                                            <Pressable
+                                                key={floor}
+                                                onPress={() => {
+                                                    setSelectedFloor(floor);
+                                                    setRoomNo("");
+                                                }}
+                                                style={{
+                                                    flex: 1,
+                                                    marginHorizontal: 3,
+                                                    paddingVertical: 10,
+                                                    borderRadius: 10,
+                                                    backgroundColor:
+                                                        selectedFloor === floor
+                                                            ? "#2563eb"
+                                                            : "#e2e8f0",
+                                                    alignItems: "center"
+                                                }}
+                                            >
+                                                <Text
+                                                    style={{
+                                                        color:
+                                                            selectedFloor === floor
+                                                                ? "#fff"
+                                                                : "#334155",
+                                                        fontWeight: "700"
+                                                    }}
+                                                >
+                                                    {floor}
+                                                </Text>
+                                            </Pressable>
+                                        ))}
+                                    </View>
+                                    
+                                    <Text
+                                        style={{
+                                            color: "#64748b",
+                                            fontSize: 14,
+                                            marginBottom: 15,
+                                            textAlign: "center"
+                                        }}
+                                    >
+                                        {
+                                            occupiedRooms.filter(room =>
+                                                room.startsWith(
+                                                    String(currentFloor.prefix)
+                                                )
+                                            ).length
+                                        } Occupied • {
+                                            currentFloor.count -
+                                            occupiedRooms.filter(room =>
+                                                room.startsWith(
+                                                    String(currentFloor.prefix)
+                                                )
+                                            ).length
+                                        } Available
+                                    </Text>
+                                    
+                                    <View
+                                        style={{
+                                            flexDirection: "row",
+                                            flexWrap: "wrap",
+                                            justifyContent: "space-between",
+                                            marginBottom: 20
+                                        }}
+                                    >
+                                        {rooms.map(room => {
+                                            const occupied =
+                                                occupiedRooms.includes(room);
+                                    
+                                            const selected =
+                                                roomNo === room;
+                                    
+                                            return (
+                                                <Pressable
+                                                    key={room}
+                                                    disabled={
+                                                        params.role !== "admin" || occupied
+                                                    }
+                                                    onPress={() => {
+                                                        if (params.role === "admin") {
+                                                            setRoomNo(room);
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        width: "18%",
+                                                        aspectRatio: 1,
+                                                        marginBottom: 10,
+                                                        borderRadius: 12,
+                                                        justifyContent: "center",
+                                                        alignItems: "center",
+                                                        backgroundColor:
+                                                            occupied
+                                                                ? "#fecaca"
+                                                                : selected
+                                                                ? "#2563eb"
+                                                                : "#fff",
+                                                        borderWidth: 1,
+                                                        borderColor:
+                                                            occupied
+                                                                ? "#dc2626"
+                                                                : selected
+                                                                ? "#2563eb"
+                                                                : "#cbd5e1",
+                                                        opacity:
+                                                            params.role !== "admin"
+                                                                ? 0.6
+                                                                : 1
+                                                    }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            fontWeight: "700",
+                                                            color:
+                                                                occupied
+                                                                    ? "#b91c1c"
+                                                                    : selected
+                                                                    ? "#fff"
+                                                                    : "#0f172a"
+                                                        }}
+                                                    >
+                                                        {room}
+                                                    </Text>
+                                                </Pressable>
+                                            );
+                                        })}
+                                    </View>
+                                    
+                                    <View
+                                        style={{
+                                            flexDirection: "row",
+                                            justifyContent: "space-around",
+                                            marginBottom: 24
+                                        }}
+                                    >
+                                        <Text>🟢 Available</Text>
+                                        <Text>🔵 Selected</Text>
+                                        <Text>🔴 Occupied</Text>
+                                    </View>
+                                    <Text
+                                        style={{
+                                            textAlign: "center",
+                                            fontSize: 16,
+                                            fontWeight: "700",
+                                            color: roomNo ? "#2563eb" : "#64748b",
+                                            marginBottom: 20
+                                        }}
+                                    >
+                                        {
+                                            roomNo
+                                                ? `Selected Room: ${roomNo}`
+                                                : "No Room Selected"
+                                        }
+                                    </Text>
                                 </View>
 
                                 <View

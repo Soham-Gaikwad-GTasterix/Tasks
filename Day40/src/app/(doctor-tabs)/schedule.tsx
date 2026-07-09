@@ -2,8 +2,6 @@ import { View, RefreshControl, FlatList, Text, Alert } from "react-native";
 
 import ScreenTitle from "@/components/ScreenTitle";
 
-import InfoCard from "@/components/InfoCard";
-
 import { useEffect, useState, useRef } from "react";
 
 import { getAppointments, updateAppointment } from "@/services/appointmentService";
@@ -192,22 +190,148 @@ export default function Schedule() {
                 renderItem={({ item }) => (
                     <View
                         style={{
-                            marginBottom: 16
+                            backgroundColor: "#fff",
+                            borderRadius: 22,
+                            padding: 18,
+                            marginBottom: 18,
+                            elevation: 5,
+                            shadowColor: "#000",
+                            shadowOpacity: 0.08,
+                            shadowRadius: 8,
+                            borderLeftWidth: 6,
+                            borderLeftColor:
+                                item.status === "Scheduled"
+                                    ? "#2563eb"
+                                    : item.status === "Completed"
+                                    ? "#22c55e"
+                                    : item.status === "Cancelled"
+                                    ? "#ef4444"
+                                    : "#7c3aed"
                         }}
                     >
-                        <InfoCard
-                            title={item.patient}
-                            subtitle={`📅 ${item.date} at 🕒 ${item.time}`}
-                            buttonText="Complete"
-                            onPress={() => handleStatusChange(item)}
-                            secondButtonText="Cancel"
-                            secondButtonColor="#dc2626"
-                            secondButtonPress={() => handleCancel(item)}
-                            status={item.status}
-                            isVisible={visibleIds.includes(item.id)}
-                        />
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                                alignItems: "center"
+                            }}
+                        >
+                            <View style={{ flex: 1 }}>
+                                <Text
+                                    style={{
+                                        fontSize: 20,
+                                        fontWeight: "700",
+                                        color: "#0f172a"
+                                    }}
+                                >
+                                    👤 {item.patient}
+                                </Text>
+
+                                <Text
+                                    style={{
+                                        marginTop: 8,
+                                        color: "#64748b"
+                                    }}
+                                >
+                                    📅 {item.date}
+                                </Text>
+
+                                <Text
+                                    style={{
+                                        marginTop: 3,
+                                        color: "#64748b"
+                                    }}
+                                >
+                                    🕒 {item.time}
+                                </Text>
+                            </View>
+
+                            <View
+                                style={{
+                                    backgroundColor:
+                                        item.status === "Scheduled"
+                                            ? "#dbeafe"
+                                            : item.status === "Completed"
+                                            ? "#dcfce7"
+                                            : item.status === "Cancelled"
+                                            ? "#fee2e2"
+                                            : "#ede9fe",
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 8,
+                                    borderRadius: 20
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontWeight: "700",
+                                        color:
+                                            item.status === "Scheduled"
+                                                ? "#2563eb"
+                                                : item.status === "Completed"
+                                                ? "#15803d"
+                                                : item.status === "Cancelled"
+                                                ? "#dc2626"
+                                                : "#6d28d9"
+                                    }}
+                                >
+                                    {item.status}
+                                </Text>
+                            </View>
+                        </View>
+
+                        {
+                            item.status === "Scheduled" ? (
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        gap: 12,
+                                        marginTop: 20
+                                    }}
+                                >
+                                    <View style={{ flex: 1 }}>
+                                        <CustomButton
+                                            title="Complete"
+                                            onPress={() =>
+                                                handleStatusChange(item)
+                                            }
+                                        />
+                                    </View>
+
+                                    <View style={{ flex: 1 }}>
+                                        <CustomButton
+                                            title="Cancel"
+                                            backgroundColor="#dc2626"
+                                            onPress={() =>
+                                                handleCancel(item)
+                                            }
+                                        />
+                                    </View>
+                                </View>
+                            ) : (
+                                <View
+                                    style={{
+                                        marginTop: 18,
+                                        alignItems: "center"
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            color: "#64748b",
+                                            fontWeight: "600"
+                                        }}
+                                    >
+                                        {
+                                            item.status === "Completed"
+                                                ? "✔ Appointment Completed"
+                                                : item.status === "Cancelled"
+                                                ? "❌ Appointment Cancelled"
+                                                : "🏥 Patient Admitted"
+                                        }
+                                    </Text>
+                                </View>
+                            )
+                        }
                     </View>
-                    
                 )}
                 refreshControl={
                     <RefreshControl

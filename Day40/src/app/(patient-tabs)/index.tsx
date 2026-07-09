@@ -164,10 +164,13 @@ export default function PatientDashboard() {
                     <View
                         style={{
                             backgroundColor: "#2563eb",
-                            borderRadius: 24,
+                            borderRadius: 28,
                             padding: 24,
                             marginBottom: 24,
-                            elevation: 6
+                            elevation: 6,
+                            shadowColor: "#000",
+                            shadowOpacity: 0.15,
+                            shadowRadius: 10
                         }}
                     >
                         <Text
@@ -176,25 +179,32 @@ export default function PatientDashboard() {
                                 fontSize: 16
                             }}
                         >
-                            Welcome Back
+                            👋 Welcome
                         </Text>
+
                         <Text
                             style={{
                                 color: "#fff",
-                                fontSize: 28,
+                                fontSize: 30,
                                 fontWeight: "700",
                                 marginTop: 6
                             }}
                         >
                             {user?.name}
                         </Text>
+
                         <Text
                             style={{
                                 color: "#dbeafe",
-                                fontSize: 16
+                                fontSize: 15,
+                                marginTop: 10
                             }}
                         >
-                            Stay healthy! Your appointments are listed below.
+                            {
+                                stats.scheduled > 0
+                                    ? `You have ${stats.scheduled} upcoming appointment${stats.scheduled > 1 ? "s" : ""}.`
+                                    : "No upcoming appointments today."
+                            }
                         </Text>
                     </View>
                     <View
@@ -205,12 +215,13 @@ export default function PatientDashboard() {
                         }}
                     >
                         <DashboardCard
-                            title="Scheduled"
+                            title="🟡 Scheduled"
                             count={stats.scheduled}
                             color="#f59e0bb3"
                         />
+
                         <DashboardCard
-                            title="Completed"
+                            title="🟢 Completed"
                             count={stats.completed}
                             color="#22c55eb3"
                         />
@@ -218,11 +229,11 @@ export default function PatientDashboard() {
 
                     <View
                         style={{
-                            marginBottom: 10
+                            marginBottom: 22
                         }}
                     >
                         <DashboardCard
-                            title="Cancelled"
+                            title="🔴 Cancelled"
                             count={stats.cancelled}
                             color="#dc2626b3"
                             fullWidth
@@ -232,129 +243,275 @@ export default function PatientDashboard() {
                         title="Upcoming Appointment"
                     >
                         {
-                            nextAppointment ?
-                            (
+                            nextAppointment ? (
                                 <View
                                     style={{
                                         backgroundColor: "#fff",
-                                        borderRadius: 18,
-                                        padding: 18,
-                                        borderWidth: 1,
-                                        borderColor: "#e2e8f0"
+                                        borderRadius: 22,
+                                        padding: 20,
+                                        elevation: 5,
+                                        shadowColor: "#000",
+                                        shadowOpacity: 0.08,
+                                        shadowRadius: 8,
+                                        borderLeftWidth: 6,
+                                        borderLeftColor: "#2563eb"
                                     }}
                                 >
                                     <Text
                                         style={{
-                                            fontSize: 20,
+                                            color: "#64748b",
+                                            fontWeight: "600",
+                                            marginBottom: 10
+                                        }}
+                                    >
+                                        🩺 Next Consultation
+                                    </Text>
+
+                                    <Text
+                                        style={{
+                                            fontSize: 22,
                                             fontWeight: "700",
                                             color: "#0f172a"
                                         }}
                                     >
                                         Dr. {nextAppointment.doctor}
                                     </Text>
-                                    <Text>
+
+                                    <Text
+                                        style={{
+                                            marginTop: 12,
+                                            color: "#475569",
+                                            fontSize: 15
+                                        }}
+                                    >
                                         📅 {nextAppointment.date}
                                     </Text>
-                                    <Text>
+
+                                    <Text
+                                        style={{
+                                            marginTop: 4,
+                                            color: "#475569",
+                                            fontSize: 15
+                                        }}
+                                    >
                                         🕒 {nextAppointment.time}
                                     </Text>
-                                    <Text>
-                                        📌 {nextAppointment.status}
-                                    </Text>
+
                                     <View
                                         style={{
-                                            marginTop: 18
+                                            alignSelf: "flex-start",
+                                            marginTop: 18,
+                                            backgroundColor: "#fef3c7",
+                                            paddingHorizontal: 14,
+                                            paddingVertical: 8,
+                                            borderRadius: 20
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                fontWeight: "700",
+                                                color: "#a16207"
+                                            }}
+                                        >
+                                            {nextAppointment.status}
+                                        </Text>
+                                    </View>
+
+                                    <View
+                                        style={{
+                                            marginTop: 20
                                         }}
                                     >
                                         <CustomButton
                                             title="Cancel Appointment"
+                                            backgroundColor="#dc2626"
                                             onPress={handleCancelAppointment}
                                         />
                                     </View>
                                 </View>
                             ) : (
-                                <Text
+                                <View
                                     style={{
-                                        color: "#64748b"
+                                        backgroundColor: "#fff",
+                                        borderRadius: 22,
+                                        padding: 30,
+                                        alignItems: "center"
                                     }}
                                 >
-                                    No upcoming appointments.
-                                </Text>
+                                    <Text
+                                        style={{
+                                            fontSize: 60
+                                        }}
+                                    >
+                                        📅
+                                    </Text>
+
+                                    <Text
+                                        style={{
+                                            marginTop: 12,
+                                            fontSize: 20,
+                                            fontWeight: "700",
+                                            color: "#334155"
+                                        }}
+                                    >
+                                        No Upcoming Appointments
+                                    </Text>
+
+                                    <Text
+                                        style={{
+                                            marginTop: 8,
+                                            color: "#64748b",
+                                            textAlign: "center"
+                                        }}
+                                    >
+                                        Book an appointment to see it here.
+                                    </Text>
+                                </View>
                             )
                         }
                     </Section>
                     <Section
-                        title= "Recent Appointments"
+                        title="Recent Appointments"
                     >
                         {
                             appointments.length === 0 ? (
-                                <Text
+                                <View
                                     style={{
-                                        textAlign: "center",
-                                        color: "#64748b",
-                                        paddingVertical: 20
+                                        backgroundColor: "#fff",
+                                        borderRadius: 22,
+                                        padding: 30,
+                                        alignItems: "center"
                                     }}
                                 >
-                                    No appointments booked yet.
-                                </Text>
-                            ):(
-                            appointments
-                                .sort(
-                                    (a, b) => new Date(b.date) - new Date(a.date)
-                                )
-                                .slice(0,5)
-                                .map(
-                                    appointment => (
+                                    <Text
+                                        style={{
+                                            fontSize: 60
+                                        }}
+                                    >
+                                        📅
+                                    </Text>
+
+                                    <Text
+                                        style={{
+                                            marginTop: 12,
+                                            fontSize: 20,
+                                            fontWeight: "700",
+                                            color: "#334155"
+                                        }}
+                                    >
+                                        No Appointments Yet
+                                    </Text>
+
+                                    <Text
+                                        style={{
+                                            marginTop: 8,
+                                            color: "#64748b",
+                                            textAlign: "center"
+                                        }}
+                                    >
+                                        Your appointment history will appear here.
+                                    </Text>
+                                </View>
+                            ) : (
+                                appointments
+                                    .sort(
+                                        (a, b) =>
+                                            new Date(`${b.date} ${b.time}`) -
+                                            new Date(`${a.date} ${a.time}`)
+                                    )
+                                    .slice(0, 5)
+                                    .map(appointment => (
                                         <View
                                             key={appointment.id}
                                             style={{
                                                 backgroundColor: "#fff",
-                                                borderRadius: 16,
-                                                padding: 16,
-                                                marginBottom: 12,
-                                                borderWidth: 1,
-                                                borderColor: "#e2e8f0"
+                                                borderRadius: 22,
+                                                padding: 18,
+                                                marginBottom: 18,
+                                                elevation: 5,
+                                                shadowColor: "#000",
+                                                shadowOpacity: 0.08,
+                                                shadowRadius: 8,
+                                                borderLeftWidth: 6,
+                                                borderLeftColor:
+                                                    appointment.status === "Scheduled"
+                                                        ? "#2563eb"
+                                                        : appointment.status === "Completed"
+                                                        ? "#22c55e"
+                                                        : "#ef4444"
                                             }}
                                         >
-                                            <Text
-                                                style={{
-                                                    fontWeight: "700",
-                                                    fontSize: 17
-                                                }}
-                                            >
-                                                Dr. {appointment.doctor}
-                                            </Text>
-                                            <Text>
-                                                📅 Date: {appointment.date}
-                                            </Text>
-                                            <Text>
-                                                🕒 Time: {appointment.time}
-                                            </Text>
                                             <View
                                                 style={{
-                                                    marginTop: 10,
-                                                    alignSelf: "flex-start",
-                                                    backgroundColor: appointment?.status === "Completed"
-                                                        ? "#dcfce7"
-                                                        : appointment?.status === "Cancelled"
-                                                            ? "#fee2e2"
-                                                            : "#fef3c7",
-                                                    paddingHorizontal: 12,
-                                                    paddingVertical: 6,
-                                                    borderRadius: 20
+                                                    flexDirection: "row",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center"
                                                 }}
                                             >
-                                                <Text
+                                                <View
                                                     style={{
-                                                        fontWeight: "700"
+                                                        flex: 1
                                                     }}
                                                 >
-                                                    {appointment?.status}
-                                                </Text>
+                                                    <Text
+                                                        style={{
+                                                            fontSize: 20,
+                                                            fontWeight: "700",
+                                                            color: "#0f172a"
+                                                        }}
+                                                    >
+                                                        🩺 Dr. {appointment.doctor}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            marginTop: 10,
+                                                            color: "#64748b"
+                                                        }}
+                                                    >
+                                                        📅 {appointment.date}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            marginTop: 3,
+                                                            color: "#64748b"
+                                                        }}
+                                                    >
+                                                        🕒 {appointment.time}
+                                                    </Text>
+                                                </View>
+
+                                                <View
+                                                    style={{
+                                                        backgroundColor:
+                                                            appointment.status === "Scheduled"
+                                                                ? "#dbeafe"
+                                                                : appointment.status === "Completed"
+                                                                ? "#dcfce7"
+                                                                : "#fee2e2",
+                                                        paddingHorizontal: 14,
+                                                        paddingVertical: 8,
+                                                        borderRadius: 20
+                                                    }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            fontWeight: "700",
+                                                            color:
+                                                                appointment.status === "Scheduled"
+                                                                    ? "#2563eb"
+                                                                    : appointment.status === "Completed"
+                                                                    ? "#15803d"
+                                                                    : "#dc2626"
+                                                        }}
+                                                    >
+                                                        {appointment.status}
+                                                    </Text>
+                                                </View>
                                             </View>
                                         </View>
-                                    )
-                                )
+                                    ))
                             )
                         }
                     </Section>

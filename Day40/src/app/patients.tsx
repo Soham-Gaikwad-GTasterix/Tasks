@@ -42,9 +42,22 @@ export default function Patients() {
     };
 
     async function loadPatients() {
-            const data =
-                await getPatients();
-            setPatients(data);
+        const data = await getPatients();
+
+        const sortedPatients = [...data].sort((a, b) => {
+
+            if (a.status === "Admitted" && b.status !== "Admitted") {
+                return -1;
+            }
+
+            if (a.status !== "Admitted" && b.status === "Admitted") {
+                return 1;
+            }
+
+            return new Date(b.admissionDate) - new Date(a.admissionDate);
+        });
+
+        setPatients(sortedPatients);
     }
     
     useEffect(() => {
@@ -58,33 +71,6 @@ export default function Patients() {
         await loadPatients();
         setRefreshing(false);
     };
-
-    function handleDelete(id) {
-        Alert.alert(
-            "Delete Patient",
-            "Are you sure?",
-            [
-                {
-                    text: "Cancel"
-                },
-                {
-                    text: "Delete",
-                    onPress: async () => {
-                        try {
-                            await deletePatient(id);
-                            await loadPatients();
-                        } catch (error) {
-                            console.log(error);
-                            Alert.alert(
-                                "Error",
-                                "Failed to Delete Patient"
-                            );
-                        }
-                    }
-                }
-            ]
-        );    
-    }
 
     return (
         <View

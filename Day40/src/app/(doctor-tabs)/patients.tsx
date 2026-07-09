@@ -1,8 +1,6 @@
-import { View, RefreshControl, FlatList, Text, Alert } from "react-native";
+import { View, RefreshControl, FlatList, Text, Image } from "react-native";
 
 import ScreenTitle from "@/components/ScreenTitle";
-
-import InfoCard from "@/components/InfoCard";
 
 import { router } from "expo-router";
 
@@ -11,6 +9,8 @@ import { useEffect, useState, useRef } from "react";
 import { getPatients } from "@/services/patientService";
 
 import { getUser } from "@/storage/authStorage";
+
+import CustomButton from "@/components/CustomButton";
 
 export default function DoctorPatients() {
     const [patients, setPatients] = useState([]);
@@ -39,14 +39,38 @@ export default function DoctorPatients() {
     async function loadPatients() {
         try {
             const user = await getUser();
+
             if (!user) {
                 return;
             }
+
             const allPatients = await getPatients();
 
-            const myPatients = allPatients.filter(
-                patient => patient.doctorId === user.doctorId
-            );
+            const myPatients = allPatients
+                .filter(
+                    patient => patient.doctorId === user.doctorId
+                )
+                .sort((a, b) => {
+                    if (
+                        a.status === "Admitted" &&
+                        b.status !== "Admitted"
+                    ) {
+                        return -1;
+                    }
+
+                    if (
+                        a.status !== "Admitted" &&
+                        b.status === "Admitted"
+                    ) {
+                        return 1;
+                    }
+
+                    return (
+                        new Date(b.admissionDate) -
+                        new Date(a.admissionDate)
+                    );
+                });
+
             setPatients(myPatients);
         } catch (error) {
             console.log(error);
@@ -91,27 +115,147 @@ export default function DoctorPatients() {
                 }}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
-                    <InfoCard
-                        title={
-                            item.status === "Discharged"
-                                ? `${item.name} (Discharged)`
-                                : item.name
-                        }
-                        subtitle={`🩸 ${item.bloodGroup} • 🛌🏽 ${item.roomNo} • ${item.status}`}
-                        status="Admitted"
-                        isVisible={
-                            visibleIds.includes(item.id)
-                        }
-                        buttonText="View Details"
-                        onPress={() => {
-                            router.push({
-                                pathname: "/patient-details",
-                                params: {
-                                    id: item.id
-                                }
-                            })
+                    <View
+                        style={{
+                            backgroundColor: "#fff",
+                            borderRadius: 22,
+                            padding: 18,
+                            marginTop: 18,
+                            elevation: 5,
+                            shadowColor: "#000",
+                            shadowOpacity: 0.08,
+                            shadowRadius: 8,
+                            borderLeftWidth: 6,
+                            borderLeftColor:
+                                item.status === "Admitted"
+                                    ? "#2563eb"
+                                    : "#22c55e"
                         }}
-                    />
+                    >
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center"
+                            }}
+                        >
+                            {
+                                item.photo ? (
+                                    <Image
+                                        source={{
+                                            uri: item.photo
+                                        }}
+                                        style={{
+                                            width: 70,
+                                            height: 70,
+                                            borderRadius: 35,
+                                            borderWidth: 2,
+                                            borderColor: "#2563eb",
+                                            backgroundColor: "#dbeafe"
+                                        }}
+                                    />
+                                ) : (
+                                    <View
+                                        style={{
+                                            width: 70,
+                                            height: 70,
+                                            borderRadius: 35,
+                                            backgroundColor: "#dbeafe",
+                                            borderWidth: 2,
+                                            borderColor: "#2563eb",
+                                            justifyContent: "center",
+                                            alignItems: "center"
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                fontSize: 30
+                                            }}
+                                        >
+                                            👤
+                                        </Text>
+                                    </View>
+                                )
+                            }
+
+                            <View
+                                style={{
+                                    flex: 1,
+                                    marginLeft: 16
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontSize: 20,
+                                        fontWeight: "700",
+                                        color: "#0f172a"
+                                    }}
+                                >
+                                    {item.name}
+                                </Text>
+
+                                <Text
+                                    style={{
+                                        marginTop: 5,
+                                        color: "#64748b"
+                                    }}
+                                >
+                                    🩸 {item.bloodGroup}
+                                </Text>
+
+                                <Text
+                                    style={{
+                                        marginTop: 2,
+                                        color: "#64748b"
+                                    }}
+                                >
+                                    🛏 {item.roomNo}
+                                </Text>
+                            </View>
+
+                            <View
+                                style={{
+                                    backgroundColor:
+                                        item.status === "Admitted"
+                                            ? "#dbeafe"
+                                            : "#dcfce7",
+                                    paddingHorizontal: 12,
+                                    paddingVertical: 6,
+                                    borderRadius: 20
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontSize: 13,
+                                        fontWeight: "700",
+                                        color:
+                                            item.status === "Admitted"
+                                                ? "#2563eb"
+                                                : "#15803d"
+                                    }}
+                                >
+                                    {item.status}
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View
+                            style={{
+                                marginTop: 18
+                            }}
+                        >
+                            <CustomButton
+                                title="View Details"
+                                onPress={() =>
+                                    router.push({
+                                        pathname: "/patient-details",
+                                        params: {
+                                            id: item.id
+                                        }
+                                    })
+                                }
+                            />
+                        </View>
+                    </View>
                 )}
                 refreshControl={
                     <RefreshControl

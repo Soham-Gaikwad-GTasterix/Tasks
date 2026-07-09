@@ -357,7 +357,7 @@ export default function PatientDetails() {
                                         fontSize: 16
                                     }}
                                 >
-                                    ✔️ Patient Discharged
+                                    ✔ Patient Discharged
                                 </Text>
                             </View>
                         </>
@@ -405,7 +405,7 @@ export default function PatientDetails() {
                                                                 const updated = {
                                                                     ...patient,
                                                                     status: "Discharged",
-                                                                    roomNo: "",
+                                                                    roomNo: `${patient.roomNo} (Discharged)`,
                                                                     dischargeDate: new Date()
                                                                         .toISOString()
                                                                         .split("T")[0]
