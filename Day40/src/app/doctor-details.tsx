@@ -8,7 +8,7 @@ import Animated, { SlideInRight } from "react-native-reanimated";
 
 import CustomButton from "@/components/CustomButton";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { getDoctors } from "@/services/doctorService";
 

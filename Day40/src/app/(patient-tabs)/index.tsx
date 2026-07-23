@@ -1,4 +1,4 @@
-import { View, ScrollView, ActivityIndicator, Text, Alert, ImageBackground } from "react-native";
+import { View, ScrollView, ActivityIndicator, Text, ImageBackground } from "react-native";
 
 import { useState, useCallback } from "react";
 
@@ -10,70 +10,121 @@ import DashboardCard from "@/components/DashboardCard";
 
 import Section from "@/components/Section";
 
-import { getAppointments, updateAppointment } from "@/services/appointmentService";
+import {
+    getAppointments,
+    updateAppointment
+} from "@/services/appointmentService";
 
 import { getUser } from "@/storage/authStorage";
 
 import CustomButton from "@/components/CustomButton";
 
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+
 export default function PatientDashboard() {
+
     const [user, setUser] = useState(null);
+
     const [appointments, setAppointments] = useState([]);
+
+    const [dialogVisible, setDialogVisible] = useState(false);
+
     const [stats, setStats] = useState({
         scheduled: 0,
         completed: 0,
         cancelled: 0
     });
+
     const [nextAppointment, setNextAppointment] = useState(null);
+
     const [loading, setLoading] = useState(true);
+
     useFocusEffect(
         useCallback(() => {
             loadDashboard();
         }, [])
     );
+
     async function loadDashboard() {
+
         try {
+
             setLoading(true);
+
             const currentUser = await getUser();
+
             setUser(currentUser);
-            const allAppointments = await getAppointments();
-            const myAppointments = allAppointments.filter(
-                item => item.patientEmail === currentUser.email
-            );
+
+            const allAppointments =
+                await getAppointments();
+
+            const myAppointments =
+                allAppointments.filter(
+                    item =>
+                        item.patientEmail ===
+                        currentUser.email
+                );
+
             setAppointments(myAppointments);
-            const today = new Date()
-                .toISOString()
-                .split("T")[0];
-            
-            const upcomingAppointments = myAppointments.filter(
-                item => item.date >= today && item.status === "Scheduled"
-            );
-            
+
+            const today =
+                new Date()
+                    .toISOString()
+                    .split("T")[0];
+
+            const upcomingAppointments =
+                myAppointments.filter(
+                    item =>
+                        item.date >= today &&
+                        item.status === "Scheduled"
+                );
+
             upcomingAppointments.sort(
-                (a, b) => new Date(a.date) - new Date(b.date)
+                (a, b) =>
+                    new Date(a.date) -
+                    new Date(b.date)
             );
+
             setNextAppointment(
                 upcomingAppointments[0] || null
             );
+
             setStats({
-                scheduled: myAppointments.filter(
-                    item => item.status === "Scheduled"
-                ).length,
-                completed: myAppointments.filter(
-                    item => item.status === "Completed"
-                ).length,
-                cancelled: myAppointments.filter(
-                    item => item.status === "Cancelled"
-                ).length
+                scheduled:
+                    myAppointments.filter(
+                        item =>
+                            item.status === "Scheduled"
+                    ).length,
+
+                completed:
+                    myAppointments.filter(
+                        item =>
+                            item.status === "Completed"
+                    ).length,
+
+                cancelled:
+                    myAppointments.filter(
+                        item =>
+                            item.status === "Cancelled"
+                    ).length
             });
-        }
-        catch (error) {
+
+        } catch (error) {
+
             console.log(error);
-        }
-        finally {
+
+        } finally {
+
             setLoading(false);
+
         }
     }
+
     if (loading) {
         return (
             <View
@@ -84,61 +135,45 @@ export default function PatientDashboard() {
                 }}
             >
                 <ActivityIndicator
-                    size= "large"
+                    size="large"
                 />
             </View>
         );
     }
 
     async function handleCancelAppointment() {
+
         if (!nextAppointment) {
             return;
         }
 
-        Alert.alert(
-            "Cancel Appointment",
-            "Are you sure you want to cancel this appointment?",
-            [
-                {
-                    text: "No",
-                    style: "cancel"
-                },
-                {
-                    text: "Yes",
-                    style: "destructive",
-                    onPress: async () => {
-                        try {
-                            await updateAppointment(
-                                nextAppointment.id,
-                                {
-                                    status: "Cancelled"
-                                }
-                            );
+        const appointmentDateTime =
+            new Date(
+                `${nextAppointment.date}T${nextAppointment.time}`
+            );
 
-                            Alert.alert(
-                                "Success",
-                                "Appointment cancelled successfully."
-                            );
+        const now = new Date();
 
-                            loadDashboard();
-                        } catch (error) {
-                            console.log(error);
+        const diffHours =
+            (appointmentDateTime - now) /
+            (1000 * 60 * 60);
 
-                            Alert.alert(
-                                "Error",
-                                "Failed to cancel appointment."
-                            );
-                        }
-                    }
-                }
-            ]
-        );
+        if (diffHours < 3) {
+
+            showError(
+                "Appointments cannot be cancelled within 3 hours of the scheduled time."
+            );
+
+            return;
+        }
+
+        setDialogVisible(true);
     }
 
     return (
         <ImageBackground
             source={{
-                uri: "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=873&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                uri: "https://plus.unsplash.com/premium_photo-1726862445541-5032bb3ec5f7?q=80&w=416&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             }}
             resizeMode="cover"
             style={{
@@ -166,7 +201,7 @@ export default function PatientDashboard() {
                             backgroundColor: "#2563eb",
                             borderRadius: 28,
                             padding: 24,
-                            marginBottom: 24,
+                            marginBottom: 20,
                             elevation: 6,
                             shadowColor: "#000",
                             shadowOpacity: 0.15,
@@ -229,13 +264,14 @@ export default function PatientDashboard() {
 
                     <View
                         style={{
-                            marginBottom: 22
+                            marginBottom: 10
                         }}
                     >
                         <DashboardCard
                             title="🔴 Cancelled"
                             count={stats.cancelled}
                             color="#dc2626b3"
+                            marginTop={10}
                             fullWidth
                         />
                     </View>
@@ -517,6 +553,49 @@ export default function PatientDashboard() {
                     </Section>
                 </ScrollView>
             </View>
+
+            <ConfirmationDialog
+                visible={dialogVisible}
+                title="Cancel Appointment"
+                message="Are you sure you want to cancel this appointment?"
+                confirmText="Yes"
+                confirmColor="#dc2626"
+                onCancel={() =>
+                    setDialogVisible(false)
+                }
+                onConfirm={async () => {
+
+                    try {
+
+                        await updateAppointment(
+                            nextAppointment.id,
+                            {
+                                ...nextAppointment,
+                                status: "Cancelled"
+                            }
+                        );
+
+                        showSuccess(
+                            "Appointment cancelled successfully."
+                        );
+
+                        setDialogVisible(false);
+
+                        await loadDashboard();
+
+                    } catch (error) {
+
+                        console.log(error);
+
+                        showError(
+                            "Failed to cancel appointment."
+                        );
+
+                        setDialogVisible(false);
+                    }
+                }}
+            />
+
         </ImageBackground>
     );
 }

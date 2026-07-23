@@ -1,12 +1,10 @@
 import { View, Text, ScrollView } from "react-native";
 
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 
 import NavigationHeader from "../components/NavigationHeader";
 
 import Animated, { SlideInRight } from "react-native-reanimated";
-
-import CustomButton from "@/components/CustomButton";
 
 import { useFocusEffect } from "expo-router";
 

@@ -7,7 +7,7 @@ function Section({
     return (
         <View
             style={{
-                marginTop: 30
+                marginBottom: 10
             }}
         >
             <Text

@@ -1,4 +1,4 @@
-import { View, Alert, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
+import { Text, View, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 
 import NavigationHeader from "@/components/NavigationHeader";
 
@@ -18,9 +18,22 @@ import { useState, useEffect } from "react";
 
 import { scheduleAppointmentTimeNotifications, scheduleReminderNotification } from "@/services/notificationService";
 
+import { getPatients } from "@/services/patientService";
+
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+
 export default function AddAppointment() {
 
     const [ doctors, setDoctors ] = useState([]);
+
+    const [dialogVisible, setDialogVisible] = useState(false);
+
+    const [appointmentReminder, setAppointmentReminder] = useState(null);
 
     useEffect(() => {
         loadDoctors();
@@ -36,8 +49,12 @@ export default function AddAppointment() {
     }
 
     async function handleBookAppointment(data) {
+
         const user = await getUser();
+
         const appointments = await getAppointments();
+
+        const patients = await getPatients();
 
         const selectedDateTime = new Date(
             `${data.date}T${data.time}`
@@ -45,188 +62,287 @@ export default function AddAppointment() {
 
         const now = new Date();
 
-        if (selectedDateTime <= now) {
-            Alert.alert(
-                "Invalid Appointment",
+        const diffMinutes =
+            (selectedDateTime - now) /
+            (1000 * 60);
+
+        if (diffMinutes < 30) {
+
+            showError(
                 "Please select a future date and time."
             );
 
             return false;
         }
 
-        const existingAppointment = appointments.find(
+        const existingScheduledAppointment = appointments.find(
             appointment =>
-                appointment.patientUserId === user.patientId &&
+                appointment.patientUserId === user.patientUserId &&
                 appointment.status === "Scheduled"
         );
 
-        if (existingAppointment) {
-            Alert.alert(
-                "Appointment Already Exists",
+        if (existingScheduledAppointment) {
+
+            showError(
                 "You already have a scheduled appointment."
             );
+
             return false;
-    }
+        }
 
-    const doctorBusy = appointments.find(
-        appointment =>
-            appointment.doctorId === data.doctorId &&
-            appointment.date === data.date &&
-            appointment.time === data.time &&
-            appointment.status === "Scheduled"
-    );
+        const patientHistory = patients
+            .filter(
+                patient =>
+                    patient.patientUserId === user.patientUserId
+            )
+            .sort(
+                (a, b) =>
+                    new Date(b.createdAt || b.admissionDate) -
+                    new Date(a.createdAt || a.admissionDate)
+            );
 
-    if (doctorBusy) {
-        Alert.alert(
-            "Slot Unavailable",
-            "The selected doctor already has an appointment at this time."
+        const latestPatient = patientHistory[0];
+
+        if (
+            latestPatient &&
+            latestPatient.status === "Admitted"
+        ) {
+
+            showError(
+                "You are currently admitted in the hospital. Please get discharged before booking another appointment."
+            );
+
+            return false;
+        }
+
+        const doctorBusy = appointments.find(
+            appointment =>
+                appointment.doctorId === data.doctorId &&
+                appointment.date === data.date &&
+                appointment.time === data.time &&
+                appointment.status === "Scheduled"
         );
-        return false;
-    }
 
-    return true;
-}
+        if (doctorBusy) {
+
+            showError(
+                "The selected doctor already has an appointment at this time."
+            );
+
+            return false;
+        }
+
+        return true;
+    }
 
     return (
         <KeyboardAvoidingView
+            style={{
+                flex: 1,
+                backgroundColor: "#f4f8fc"
+            }}
+            behavior={
+                Platform.OS === "ios"
+                    ? "padding"
+                    : "height"
+            }
+        >
+            <NavigationHeader
+                title="Book Appointment"
+                showBack
+            />
+
+            <ScrollView
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                    padding: 20,
+                    paddingBottom: 40
+                }}
+            >
+                <View
                     style={{
-                        flex:1
+                        backgroundColor: "#fff",
+                        borderRadius: 24,
+                        padding: 24,
+                        elevation: 5,
+                        shadowColor: "#000",
+                        shadowOpacity: 0.08,
+                        shadowRadius: 10,
+                        shadowOffset: {
+                            width: 0,
+                            height: 4
+                        }
                     }}
-                    behavior={
-                        Platform.OS === "ios"
-                            ? "padding"
-                            : "height"   
-                    }
                 >
-                    <ScrollView
-                        keyboardShouldPersistTaps="handled"
-                        contentContainerStyle={{
-                            paddingBottom: 50
+                    <View
+                        style={{
+                            alignItems: "center",
+                            marginBottom: 20
                         }}
                     >
                         <View
                             style={{
-                                flex: 1,
-                                backgroundColor: "#f4f8fc"
+                                width: 72,
+                                height: 72,
+                                borderRadius: 36,
+                                backgroundColor: "#dbeafe",
+                                justifyContent: "center",
+                                alignItems: "center"
                             }}
                         >
-
-                            <NavigationHeader
-                                title="Add Appointment"
-                                showBack
-                            />
                             <View
                                 style={{
-                                    padding: 20,
-                                    backgroundColor: "#fff"
+                                    transform: [
+                                        {
+                                            scale: 1.5
+                                        }
+                                    ]
                                 }}
                             >
-                                <DynamicForm
-                                    buttonText="Add Appointment"
-                                    fields={[
-                                        {
-                                            name: "doctorId",
-                                            placeholder: "Select Doctor",
-                                            type: "doctor-select",
-                                            options: doctors
-                                        },
-                                        {
-                                            name: "date",
-                                            placeholder: "Appointment Date",
-                                            type: "date"
-                                        },
-                                        {
-                                            name: "time",
-                                            placeholder: "Appointment Time",
-                                            type: "time"
-                                        }
-                                    ]}
-                                    onSubmit={async (data) => {
-
-                                        try {
-
-                                            const currentUser = await getUser();
-
-                                            console.log("CURRENT USER =", currentUser);
-                                            
-                                            const canBook = await handleBookAppointment(data);
-
-                                            if (!canBook) {
-                                                return;
-                                            }
-                                            
-                                            const selectedDoctor = doctors.find(
-                                                doctor => doctor.id === data.doctorId
-                                            );
-
-                                            console.log(currentUser);
-
-                                            const appointmentData = {
-                                                id: `APT-${nanoid(8)}`,
-                                                patientUserId: currentUser.patientUserId,
-                                                patient: currentUser.name,
-                                                patientEmail: currentUser.email,
-                                                age: currentUser.age,
-                                                gender: currentUser.gender,
-                                                phoneNo: currentUser.phoneNo,
-                                                bloodGroup: currentUser.bloodGroup,
-                                                photo: currentUser.photo,
-                                                doctor: selectedDoctor.name,
-                                                doctorId: selectedDoctor.id,
-                                                date: data.date,
-                                                time: data.time,
-                                                status: "Scheduled"
-                                            };
-
-                                            console.log("SENDING =", appointmentData);
-
-                                            await createAppointment(appointmentData);
-
-                                            await scheduleAppointmentTimeNotifications({
-                                                patient: currentUser.name,
-                                                doctor: selectedDoctor?.name,
-                                                date: data.date,
-                                                time: data.time
-                                            });
-
-                                            Alert.alert(
-                                                "Appointment Added", "Would you like a reminder 10 minutes before?",
-                                                [
-                                                    {
-                                                        text: "No",
-                                                        onPress: () => {
-                                                            router.back();
-                                                        }
-                                                    },
-                                                    {
-                                                        text: "Yes",
-                                                        onPress: async () => {
-                                                            await scheduleReminderNotification({
-                                                                ...data,
-                                                                doctor: selectedDoctor?.name
-                                                            });
-                                                            router.back();
-                                                        }
-                                                    }
-                                                ]
-                                            );
-                                        } catch (
-                                            error
-                                        ) {
-                                            console.log(error);
-
-                                            alert("Failed to Add Appointment");
-
-                                            Alert.alert(
-                                                "Error",
-                                                JSON.stringify(error.response?.data || error.message)
-                                            );
-                                        }
+                                <Text
+                                    style={{
+                                        fontSize: 28
                                     }}
-                                />
+                                >
+                                    📅
+                                </Text>
                             </View>
                         </View>
-                </ScrollView>
+
+                        <Text
+                            style={{
+                                fontSize: 25,
+                                fontWeight: "700",
+                                color: "#0f172a",
+                                marginTop: 18
+                            }}
+                        >
+                            Book Appointment
+                        </Text>
+
+                        <Text
+                            style={{
+                                textAlign: "center",
+                                color: "#64748b",
+                                marginTop: 8,
+                                fontSize: 15,
+                                lineHeight: 22
+                            }}
+                        >
+                            Select your preferred doctor, date and
+                            appointment time.
+                        </Text>
+                    </View>
+
+                    <DynamicForm
+                        buttonText="Book Appointment"
+                        fields={[
+                            {
+                                name: "doctorId",
+                                placeholder: "Select Doctor",
+                                type: "doctor-select",
+                                options: doctors
+                            },
+                            {
+                                name: "date",
+                                placeholder: "Appointment Date",
+                                type: "date"
+                            },
+                            {
+                                name: "time",
+                                placeholder: "Appointment Time",
+                                type: "time"
+                            }
+                        ]}
+                        onSubmit={async (data) => {
+                            try {
+
+                                const currentUser = await getUser();
+
+                                const canBook =
+                                    await handleBookAppointment(data);
+
+                                if (!canBook) {
+                                    return;
+                                }
+
+                                const selectedDoctor =
+                                    doctors.find(
+                                        doctor =>
+                                            doctor.id === data.doctorId
+                                    );
+
+                                const appointmentData = {
+                                    id: `APT-${nanoid(8)}`,
+                                    patientUserId: currentUser.patientUserId,
+                                    patient: currentUser.name,
+                                    patientEmail: currentUser.email,
+                                    age: currentUser.age,
+                                    gender: currentUser.gender,
+                                    phoneNo: currentUser.phoneNo,
+                                    bloodGroup: currentUser.bloodGroup,
+                                    photo: currentUser.photo,
+                                    doctor: selectedDoctor.name,
+                                    doctorId: selectedDoctor.id,
+                                    date: data.date,
+                                    time: data.time,
+                                    status: "Scheduled"
+                                };
+
+                                await createAppointment(
+                                    appointmentData
+                                );
+
+                                await scheduleAppointmentTimeNotifications({
+                                    patient: currentUser.name,
+                                    doctor: selectedDoctor.name,
+                                    date: data.date,
+                                    time: data.time
+                                });
+
+                                setAppointmentReminder({
+                                    ...data,
+                                    doctor: selectedDoctor.name
+                                });
+
+                                setDialogVisible(true);
+
+                            } catch (error) {
+
+                                console.log(error);
+
+                                showError(
+                                    error?.response?.data?.message ||
+                                    "Unable to book appointment."
+                                );
+                            }
+                        }}
+                    />
+                </View>
+            </ScrollView>
+
+            <ConfirmationDialog
+                visible={dialogVisible}
+                title="Appointment Booked"
+                message="Would you like a reminder 10 minutes before your appointment?"
+                confirmText="Yes"
+                confirmColor="#2563eb"
+                onCancel={() => {
+                    setDialogVisible(false);
+                    router.back();
+                }}
+                onConfirm={async () => {
+                    await scheduleReminderNotification(
+                        appointmentReminder
+                    );
+
+                    setDialogVisible(false);
+
+                    router.back();
+                }}
+            />
+
         </KeyboardAvoidingView>
     );
 }

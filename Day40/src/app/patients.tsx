@@ -1,4 +1,4 @@
-import { View, RefreshControl, FlatList, Alert, Text, Image } from "react-native";
+import { View, RefreshControl, FlatList, Text, Image } from "react-native";
 
 import { router } from "expo-router";
 
@@ -8,7 +8,7 @@ import CustomButton from "@/components/CustomButton";
 
 import { useState, useEffect, useRef } from "react";
 
-import { getPatients, deletePatient } from "@/services/patientService";
+import { getPatients } from "@/services/patientService";
 
 export default function Patients() {
 
@@ -196,7 +196,7 @@ export default function Patients() {
                                         fontSize: 15
                                     }}
                                 >
-                                    🛌🏽 Room {item.roomNo || "--"}
+                                    🛌🏽 Room {item.roomNo} {item.bedNo ? `(Bed ${item.bedNo})` : ""}
                                 </Text>
                             </View>
                             <View

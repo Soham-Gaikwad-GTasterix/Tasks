@@ -1,4 +1,4 @@
-import { View, Text, Image, ScrollView, Alert } from "react-native";
+import { View, Text, Image, ScrollView } from "react-native";
 
 import { useLocalSearchParams, router } from "expo-router";
 
@@ -20,12 +20,21 @@ import { updatePatient } from "@/services/patientService";
 
 import { getUser } from "@/storage/authStorage";
 
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+
 export default function PatientDetails() {
     const { id } = useLocalSearchParams();
 
     const [patient, setPatient] = useState(null);
 
     const [user, setUser] = useState(null);
+
+    const [dialogVisible, setDialogVisible] = useState(false);
 
     useEffect(() => {
         async function loadUser() {
@@ -46,6 +55,44 @@ export default function PatientDetails() {
             loadPatient();
         }, [id])
     );
+
+    async function handleDischarge() {
+        try {
+
+            const updated = {
+                ...patient,
+                status: "Discharged",
+                roomNo: `${patient.roomNo} (Discharged)`,
+                dischargeDate: new Date()
+                    .toISOString()
+                    .split("T")[0]
+            };
+
+            await updatePatient(
+                patient.id,
+                updated
+            );
+
+            setPatient(updated);
+
+            showSuccess(
+                "Patient discharged successfully."
+            );
+
+        } catch (error) {
+
+            console.log(error);
+
+            showError(
+                "Failed to discharge patient."
+            );
+
+        } finally {
+
+            setDialogVisible(false);
+
+        }
+    }
 
     return (
         <Animated.View
@@ -294,7 +341,31 @@ export default function PatientDetails() {
                 </View>
                 <View
                     style={{
-                        marginBottom:16
+                        marginBottom: 16
+                    }}
+                >
+                    <Text
+                        style={{
+                            color: "#64748b",
+                            fontSize: 14
+                        }}
+                    >
+                        Doctor
+                    </Text>
+
+                    <Text
+                        style={{
+                            fontSize: 17,
+                            fontWeight: "600",
+                            color: "#0f172a"
+                        }}
+                    >
+                        {patient?.doctorName}
+                    </Text>
+                </View>
+                <View
+                    style={{
+                        marginBottom: 16
                     }}
                 >
                     <Text
@@ -305,6 +376,7 @@ export default function PatientDetails() {
                     >
                         Room No.
                     </Text>
+
                     <Text
                         style={{
                             fontSize: 17,
@@ -313,6 +385,31 @@ export default function PatientDetails() {
                         }}
                     >
                         {patient?.roomNo}
+                    </Text>
+                </View>
+
+                <View
+                    style={{
+                        marginBottom: 16
+                    }}
+                >
+                    <Text
+                        style={{
+                            color: "#64748b",
+                            fontSize: 14
+                        }}
+                    >
+                        Bed No.
+                    </Text>
+
+                    <Text
+                        style={{
+                            fontSize: 17,
+                            fontWeight: "600",
+                            color: "#0f172a"
+                        }}
+                    >
+                        {patient?.bedNo || " "}
                     </Text>
                 </View>
                 {
@@ -389,34 +486,9 @@ export default function PatientDetails() {
                                         <CustomButton
                                             title="Discharge Patient"
                                             backgroundColor="#dc2626"
-                                            onPress={async () => {
-                                                Alert.alert(
-                                                    "Discharge Patient",
-                                                    "Are you sure?",
-                                                    [
-                                                        {
-                                                            text: "Cancel",
-                                                            style: "cancel"
-                                                        },
-                                                        {
-                                                            text: "Discharge",
-                                                            style: "destructive",
-                                                            onPress: async () => {
-                                                                const updated = {
-                                                                    ...patient,
-                                                                    status: "Discharged",
-                                                                    roomNo: `${patient.roomNo} (Discharged)`,
-                                                                    dischargeDate: new Date()
-                                                                        .toISOString()
-                                                                        .split("T")[0]
-                                                                };
-                                                                await updatePatient(patient.id, updated);
-                                                                setPatient(updated);
-                                                            }
-                                                        }
-                                                    ]
-                                                );
-                                            }}
+                                            onPress={() =>
+                                                setDialogVisible(true)
+                                            }
                                         />
                                     </View>
                                 )
@@ -426,6 +498,19 @@ export default function PatientDetails() {
                 }
                 
             </ScrollView>
+
+            <ConfirmationDialog
+                visible={dialogVisible}
+                title="Discharge Patient"
+                message="Are you sure you want to discharge this patient?"
+                confirmText="Discharge"
+                confirmColor="#dc2626"
+                onCancel={() =>
+                    setDialogVisible(false)
+                }
+                onConfirm={handleDischarge}
+            />
+
         </Animated.View>
     );
 }

@@ -1,4 +1,4 @@
-import { View, Text, Image, Alert, Pressable, ScrollView } from "react-native";
+import { View, Text, Image, Pressable, ScrollView } from "react-native";
 
 import ScreenTitle from "../../components/ScreenTitle";
 
@@ -16,6 +16,13 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
 export default function Profile() {
 
     const [photo, setPhoto] = useState(null);
@@ -25,6 +32,8 @@ export default function Profile() {
     const cameraRef = useRef(null);
 
     const [permission, requestPermission] = useCameraPermissions();
+
+    const [dialogVisible, setDialogVisible] = useState(false);
 
     useEffect(() => {
         async function loadPhoto() {
@@ -56,9 +65,8 @@ export default function Profile() {
         if (!permission?.granted) {
             const response = await requestPermission();
             if (!response.granted) {
-                Alert.alert(
-                    "Permission Required",
-                    "Camera access is required to takw photos."
+                showError(
+                    "Camera access is required to take photos."
                 );
                 return;
             }
@@ -76,39 +84,19 @@ export default function Profile() {
             });
             await savePhoto(photoData.uri);
             setShowCamera(false);
-            Alert.alert(
-                "Success",
-                "Photo captured successfully"
+            showSuccess(
+                "Photo captured successfully."
             );
         } catch (error) {
-            Alert.alert(
-                "Error",
-                "Failed to capture photo"
+            showError(
+                "Failed to capture photo."
             );
         }
     }
 
     async function handleLogout() {
-        Alert.alert(
-            "Logout",
-            "Are you sure you want to logout?",
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "Logout",
-                    style: "destructive",
-                    onPress: async () => {
-                        await logout();
-                        router.replace(
-                            "/login"
-                        );
-                    }
-                }
-            ]
-        );
+        await logout();
+        router.replace("/login");
     }
 
     if (showCamera) {
@@ -346,11 +334,24 @@ export default function Profile() {
                 >
                     <CustomButton
                         title="Logout"
-                        onPress={handleLogout}
+                        onPress={() =>
+                            setDialogVisible(true)
+                        }
                         backgroundColor="#dc2626"
                     />
                 </View>
-            </ScrollView>            
+            </ScrollView>   
+            <ConfirmationDialog
+                visible={dialogVisible}
+                title="Logout"
+                message="Are you sure you want to logout?"
+                confirmText="Logout"
+                confirmColor="#dc2626"
+                onCancel={() =>
+                    setDialogVisible(false)
+                }
+                onConfirm={handleLogout}
+            />         
         </View>
     );
 }

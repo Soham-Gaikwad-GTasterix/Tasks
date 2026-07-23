@@ -4,6 +4,8 @@ function DashboardCard({
     title,
     count,
     color,
+    marginTop,
+    marginBottom,
     fullWidth = false
 }) {
     return (
@@ -12,8 +14,8 @@ function DashboardCard({
                 backgroundColor: color,
                 padding: 18,
                 borderRadius: 22,
-                marginTop: 20,
-                marginBottom: 16,
+                marginTop: marginTop,
+                marginBottom: marginBottom,
                 borderWidth: 1.2,
                 borderColor: color,
                 flexDirection: "row",

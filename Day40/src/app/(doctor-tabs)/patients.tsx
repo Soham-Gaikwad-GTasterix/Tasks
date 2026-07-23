@@ -208,7 +208,7 @@ export default function DoctorPatients() {
                                         color: "#64748b"
                                     }}
                                 >
-                                    🛏 {item.roomNo}
+                                    🛏 {item.roomNo} {item.bedNo ? `(Bed ${item.bedNo})` : ""}
                                 </Text>
                             </View>
 

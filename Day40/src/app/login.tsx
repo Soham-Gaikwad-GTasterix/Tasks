@@ -12,6 +12,11 @@ import CustomButton from "../components/CustomButton";
 
 import { BlurView } from "expo-blur";
 
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
 export default function Login() {
 
     const [showPassword, setShowPassword] = useState(false);
@@ -28,16 +33,19 @@ export default function Login() {
 
     async function handleLogin() {
         try {
-            const data = 
+
+            const data =
                 await login(
                     email,
                     password
                 );
-            
+
             await saveSession(
                 data.token,
                 data.user
             );
+
+            showSuccess("Login Successful");
 
             if (
                 data.user.role === "admin"
@@ -54,18 +62,28 @@ export default function Login() {
                     "/(patient-tabs)"
                 );
             } else {
-                alert("Unknown user role");
+                showError("Unknown user role");
             }
-            
+
         } catch (error) {
-            console.log("Login Error: ", error);
+
+            console.log("Login Error:", error);
 
             if (error.response) {
-                alert(`Status: ${error.response.status}\n\n${error.response.data.message}`);
+
+                showError(
+                    error.response.data?.message ||
+                    `Status: ${error.response.status}`
+                );
+
             } else if (error.request) {
-                alert("Network Error: Cannot connect to backend");
+
+                showError("Cannot connect to the server.");
+
             } else {
-                alert(error.message);
+
+                showError(error.message);
+
             }
         }
     }
@@ -83,6 +101,7 @@ export default function Login() {
             <StatusBar
                 barStyle="light-content"
             />
+
             <View
                 style={{
                     flex: 1,
@@ -113,6 +132,7 @@ export default function Login() {
                         >
                             🏥
                         </Text>
+
                         <Text
                             style={{
                                 fontSize: 30,
@@ -124,6 +144,7 @@ export default function Login() {
                         >
                             Login
                         </Text>
+
                         <Text
                             style={{
                                 fontSize: 16,
@@ -136,6 +157,7 @@ export default function Login() {
                         >
                             Welcome Back
                         </Text>
+
                         <TextInput
                             placeholder="Email"
                             placeholderTextColor="#94a3b8"
@@ -151,84 +173,91 @@ export default function Login() {
                                 color: "#0f172a"
                             }}
                         />
+
                         <View
+                            style={{
+                                borderWidth: 1,
+                                borderColor: "#cbd5e1",
+                                backgroundColor: "#fff",
+                                borderRadius: 16,
+                                flexDirection: "row",
+                                alignItems: "center",
+                                paddingRight: 16,
+                                marginBottom: 16
+                            }}
+                        >
+                            <TextInput
+                                placeholder="Password"
+                                placeholderTextColor="#94a3b8"
+                                secureTextEntry={!showPassword}
+                                value={password}
+                                onChangeText={setPassword}
                                 style={{
-                                    borderWidth: 1,
-                                    borderColor: "#cbd5e1",
-                                    backgroundColor: "#fff",
-                                    borderRadius: 16,
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    paddingRight: 16,
-                                    marginBottom: 16
+                                    flex: 1,
+                                    color: "#0f172a",
+                                    padding: 16,
+                                    borderRadius: 12
                                 }}
-                            >
-                                <TextInput
-                                    placeholder="Password"
-                                    placeholderTextColor="#94a3b8"
-                                    secureTextEntry={!showPassword}
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    style={{
-                                        flex: 1,
-                                        color: "#0f172a",
-                                        padding: 16,
-                                        borderRadius: 12
-                                    }}
-                                />
-                                <Text
-                                    onPress={() => setShowPassword(!showPassword)}
-                                    style={{
-                                        color: "#2563eb",
-                                        fontWeight: "700",
-                                        paddingLeft: 10
-                                    }}
-                                >
-                                    {
-                                        showPassword
-                                            ? "Hide"
-                                            : "Show"
-                                    }
-                                </Text>
-                            </View>
-                            
-                            <CustomButton
-                                title="Login"
-                                onPress={handleLogin}
                             />
-                        </View>
-                        <Text
-                            style={{
-                                textAlign: "center",
-                                marginTop: 24,
-                                color: "#64748b",
-                                fontSize: 15
-                            }}
-                        >
-                            Don't have an account?
-                        </Text>
-                        <Pressable
-                            onPress={() =>
-                                router.push("/register")
-                            }
-                            style={{
-                                marginTop: 12,
-                                alignSelf: "center",
-                                marginBottom: 28
-                            }}
-                        >
+
                             <Text
+                                onPress={() =>
+                                    setShowPassword(!showPassword)
+                                }
                                 style={{
                                     color: "#2563eb",
-                                    fontSize: 16,
-                                    fontWeight: "700"
+                                    fontWeight: "700",
+                                    paddingLeft: 10
                                 }}
                             >
-                                Register as Patient
+                                {
+                                    showPassword
+                                        ? "Hide"
+                                        : "Show"
+                                }
                             </Text>
-                        </Pressable>
-                </BlurView>  
-            </View>       
-        </ImageBackground>        
+                        </View>
+
+                        <CustomButton
+                            title="Login"
+                            onPress={handleLogin}
+                        />
+                    </View>
+
+                    <Text
+                        style={{
+                            textAlign: "center",
+                            marginTop: 24,
+                            color: "#64748b",
+                            fontSize: 15
+                        }}
+                    >
+                        Don't have an account?
+                    </Text>
+
+                    <Pressable
+                        onPress={() =>
+                            router.push("/register")
+                        }
+                        style={{
+                            marginTop: 12,
+                            alignSelf: "center",
+                            marginBottom: 28
+                        }}
+                    >
+                        <Text
+                            style={{
+                                color: "#2563eb",
+                                fontSize: 16,
+                                fontWeight: "700"
+                            }}
+                        >
+                            Register as Patient
+                        </Text>
+                    </Pressable>
+
+                </BlurView>
+            </View>
+        </ImageBackground>
     );
 }

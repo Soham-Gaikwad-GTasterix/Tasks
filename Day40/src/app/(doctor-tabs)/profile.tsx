@@ -1,4 +1,4 @@
-import { View, Text, Image, Alert, Pressable, ScrollView } from "react-native";
+import { View, Text, Image, Pressable, ScrollView } from "react-native";
 
 import ScreenTitle from "../../components/ScreenTitle";
 
@@ -18,6 +18,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { getDoctors } from "@/services/doctorService";
 
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
 export default function DoctorProfile() {
 
     const [doctor, setDoctor] = useState(null);
@@ -30,10 +37,14 @@ export default function DoctorProfile() {
 
     const [permission, requestPermission] = useCameraPermissions();
 
+    const [dialogVisible, setDialogVisible] = useState(false);
+
     useEffect(() => {
+
         async function loadPhoto() {
 
             try {
+
                 const currentUser = await getUser();
 
                 const doctors = await getDoctors();
@@ -45,94 +56,117 @@ export default function DoctorProfile() {
                 setDoctor(currentDoctor);
 
                 if (currentDoctor) {
-                    const savedPhoto = await AsyncStorage.getItem(`profilePhoto_${currentDoctor.id}`);
+
+                    const savedPhoto =
+                        await AsyncStorage.getItem(
+                            `profilePhoto_${currentDoctor.id}`
+                        );
+
                     if (savedPhoto) {
                         setPhoto(savedPhoto);
                     }
                 }
+
             } catch (error) {
+
                 console.log(error);
+
             }
         }
+
         loadPhoto();
+
     }, []);
 
     async function savePhoto(uri) {
-        if(!doctor) {
+
+        if (!doctor) {
             return;
         }
+
         setPhoto(uri);
-        await AsyncStorage.setItem(`profilePhoto_${doctor.id}`, uri);
+
+        await AsyncStorage.setItem(
+            `profilePhoto_${doctor.id}`,
+            uri
+        );
     }
 
     async function pickImage() {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ["images"],
-            allowsEditing: true,
-            quality: 1
-        });
+
+        const result =
+            await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ["images"],
+                allowsEditing: true,
+                quality: 1
+            });
+
         if (!result.canceled) {
-            await savePhoto(result.assets[0].uri);
+
+            await savePhoto(
+                result.assets[0].uri
+            );
+
         }
     }
 
-    async function openCamera(){
+    async function openCamera() {
+
         if (!permission?.granted) {
-            const response = await requestPermission();
+
+            const response =
+                await requestPermission();
+
             if (!response.granted) {
-                Alert.alert(
-                    "Permission Required",
-                    "Camera access is required to takw photos."
+
+                showError(
+                    "Camera access is required to take photos."
                 );
+
                 return;
             }
         }
+
         setShowCamera(true);
     }
 
     async function takePhoto() {
+
         if (!cameraRef.current) {
             return;
         }
+
         try {
-            const photoData = await cameraRef.current.takePictureAsync({
-                quality: 1
-            });
+
+            const photoData =
+                await cameraRef.current.takePictureAsync({
+                    quality: 1
+                });
+
             await savePhoto(photoData.uri);
+
             setShowCamera(false);
-            Alert.alert(
-                "Success",
-                "Photo captured successfully"
+
+            showSuccess(
+                "Photo captured successfully."
             );
+
         } catch (error) {
-            Alert.alert(
-                "Error",
-                "Failed to capture photo"
+
+            console.log(error);
+
+            showError(
+                "Failed to capture photo."
             );
         }
     }
 
     async function handleLogout() {
-        Alert.alert(
-            "Logout",
-            "Are you sure you want to logout?",
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "Logout",
-                    style: "destructive",
-                    onPress: async () => {
-                        await logout();
-                        router.replace(
-                            "/login"
-                        );
-                    }
-                }
-            ]
-        );
+
+        await logout();
+
+        router.replace("/login");
+
     }
 
     if (showCamera) {
@@ -471,11 +505,26 @@ export default function DoctorProfile() {
                 >
                     <CustomButton
                         title="Logout"
-                        onPress={handleLogout}
+                        onPress={() =>
+                            setDialogVisible(true)
+                        }
                         backgroundColor="#dc2626"
                     />
                 </View>
             </ScrollView>
+
+            <ConfirmationDialog
+                visible={dialogVisible}
+                title="Logout"
+                message="Are you sure you want to logout?"
+                confirmText="Logout"
+                confirmColor="#dc2626"
+                onCancel={() =>
+                    setDialogVisible(false)
+                }
+                onConfirm={handleLogout}
+            />
+
         </View>
     );
 }

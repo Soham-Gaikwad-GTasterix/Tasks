@@ -1,4 +1,4 @@
-import { View, TextInput, Alert, Platform, Pressable, Text, Image } from "react-native";
+import { View, TextInput, Platform, Pressable, Text, Image } from "react-native";
 
 import { useState } from "react";
 
@@ -9,6 +9,12 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Dropdown } from "react-native-element-dropdown";
 
 import * as ImagePicker from "expo-image-picker";
+
+import { Ionicons } from "@expo/vector-icons";
+
+import {
+    showError
+} from "@/services/toastService";
 
 function DynamicForm({
     fields,
@@ -23,6 +29,8 @@ function DynamicForm({
     const [pickerMode, setPickerMode] = useState("date");
 
     const [selectedDateField, setSelectedDateField] = useState(null);
+
+    const [showPassword, setShowPassword] = useState(false);
 
     function handleChange(
         name,
@@ -53,49 +61,79 @@ function DynamicForm({
     }
 
     function validateForm() {
+
         for (const field of fields) {
+
             const value = formData[field.name];
+
             if (
-                !value || value.toString().trim() === ""
+                !value ||
+                value.toString().trim() === ""
             ) {
-                Alert.alert(
-                    "Required Field",
+
+                showError(
                     `${field.placeholder} is required`
                 );
+
                 return false;
             }
         }
+
         if (
-            formData.email && !/^\S+@\S+\.\S+$/.test(formData.email)
+            formData.email &&
+            !/^\S+@\S+\.\S+$/.test(formData.email)
         ) {
-            Alert.alert("Invalid Email", "Please enter a valid email address.");
+
+            showError(
+                "Please enter a valid email address."
+            );
+
             return false;
         }
+
         if (
-            formData.age && Number(formData.age) < 0
+            formData.age &&
+            Number(formData.age) < 0
         ) {
-            Alert.alert("Invalid Age Value", "Age cannot be negative");
+
+            showError(
+                "Age cannot be negative."
+            );
+
             return false;
         }
+
         if (
-            formData.experience && Number(formData.experience) < 0
+            formData.experience &&
+            Number(formData.experience) < 0
         ) {
-            Alert.alert("Invalid Experience", "Experience cannot be negative");
+
+            showError(
+                "Experience cannot be negative."
+            );
+
             return false;
         }
+
         if (
-            formData.phoneNo && !/^\d{10}$/.test(formData.phoneNo)
+            formData.phoneNo &&
+            !/^\d{10}$/.test(formData.phoneNo)
         ) {
-            Alert.alert("Invalid Phane Number", "Phone Number must be 10 digits");
+
+            showError(
+                "Phone number must be 10 digits."
+            );
+
             return false;
         }
+
         return true;
     }
 
     return(
         <View
             style={{
-                backgroundColor: "#f4f8fc"
+                backgroundColor: "transparent"
             }}
         >
             {fields.map(field => {
@@ -107,33 +145,32 @@ function DynamicForm({
                         <View
                             key={field.name}
                             style={{
-                                backgroundColor: "#fff",
-                                borderWidth: 1,
-                                borderRadius: 18,
                                 marginBottom: 18,
-                                borderColor: "#e2e8f0",
-                                elevation: 3,
+                                borderRadius: 18,
+                                backgroundColor: "#fff",
+                                elevation: 5,
                                 shadowColor: "#000",
                                 shadowOpacity: 0.08,
-                                shadowRadius: 6,
+                                shadowRadius: 8,
                                 shadowOffset: {
                                     width: 0,
-                                    height: 3
+                                    height: 4
                                 }
                             }}
                         >
                             <Dropdown
                                 style={{
                                     height: 58,
-                                    backgroundColor: "#fff",
                                     borderRadius: 18,
                                     paddingHorizontal: 18,
-                                    borderWidth: 1,
-                                    borderColor: "#e2e8f0",
-                                    elevation: 3
+                                    backgroundColor: "#fff"
                                 }}
                                 placeholderStyle={{
                                     color: "#94a3b8",
+                                    fontSize: 16
+                                }}
+                                selectedTextStyle={{
+                                    color: "#0f172a",
                                     fontSize: 16
                                 }}
                                 data={field.options.map(
@@ -208,33 +245,32 @@ function DynamicForm({
                         <View
                             key={field.name}
                             style={{
-                                backgroundColor: "#fff",
-                                borderWidth: 1,
-                                borderRadius: 18,
                                 marginBottom: 18,
-                                borderColor: "#e2e8f0",
-                                elevation: 3,
+                                borderRadius: 18,
+                                backgroundColor: "#fff",
+                                elevation: 5,
                                 shadowColor: "#000",
                                 shadowOpacity: 0.08,
-                                shadowRadius: 6,
+                                shadowRadius: 8,
                                 shadowOffset: {
                                     width: 0,
-                                    height: 3
+                                    height: 4
                                 }
                             }}
                         >
                             <Dropdown
                                 style={{
                                     height: 58,
-                                    backgroundColor: "#fff",
                                     borderRadius: 18,
                                     paddingHorizontal: 18,
-                                    borderWidth: 1,
-                                    borderColor: "#e2e8f0",
-                                    elevation: 3
+                                    backgroundColor: "#fff"
                                 }}
                                 placeholderStyle={{
                                     color: "#94a3b8",
+                                    fontSize: 16
+                                }}
+                                selectedTextStyle={{
+                                    color: "#0f172a",
                                     fontSize: 16
                                 }}
                                 data={field.options.map(
@@ -277,56 +313,110 @@ function DynamicForm({
                             }}
                             style={{
                                 backgroundColor: "#fff",
-                                borderWidth: 1,
                                 borderRadius: 18,
                                 padding: 18,
                                 marginBottom: 18,
-                                borderColor: "#e2e8f0",
-                                elevation: 3,
+                                elevation: 5,
                                 shadowColor: "#000",
                                 shadowOpacity: 0.08,
-                                shadowRadius: 6,
+                                shadowRadius: 8,
                                 shadowOffset: {
                                     width: 0,
-                                    height: 3
+                                    height: 4
                                 }
                             }}
                         >
-                            <Text>
+                            <Text
+                                style={{
+                                    fontSize: 16,
+                                    color: formData[field.name]
+                                        ? "#0f172a"
+                                        : "#94a3b8"
+                                }}
+                            >
                                 {
-                                    formData[field.name] 
-                                    || field.placeholder
+                                    formData[field.name] ||
+                                    field.placeholder
                                 }
                             </Text>
                         </Pressable>
                     );
                 }
-                return (
+                return field.secureTextEntry ? (
+                    <View
+                        key={field.name}
+                        style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            borderWidth: 1,
+                            borderRadius: 18,
+                            marginBottom: 18,
+                            backgroundColor: "#fff",
+                            borderColor: "#e2e8f0",
+                            elevation: 6,
+                            shadowColor: "#000",
+                            shadowOpacity: 0.08,
+                            shadowRadius: 6,
+                            shadowOffset: {
+                                width: 0,
+                                height: 3
+                            }
+                        }}
+                    >
+                        <TextInput
+                            placeholder={field.placeholder}
+                            placeholderTextColor="#555"
+                            value={formData[field.name] || ""}
+                            keyboardType={field.keyboardType}
+                            maxLength={field.maxLength}
+                            onChangeText={(value) =>
+                                handleChange(field.name, value)
+                            }
+                            secureTextEntry={!showPassword}
+                            style={{
+                                flex: 1,
+                                paddingHorizontal: 18,
+                                paddingVertical: 16,
+                                color: "#0f172a",
+                                fontSize: 16
+                            }}
+                        />
+
+                        <Pressable
+                            onPress={() =>
+                                setShowPassword(!showPassword)
+                            }
+                            style={{
+                                paddingHorizontal: 18
+                            }}
+                        >
+                            <Ionicons
+                                name={
+                                    showPassword
+                                        ? "eye-off-outline"
+                                        : "eye-outline"
+                                }
+                                size={22}
+                                color="#64748b"
+                            />
+                        </Pressable>
+                    </View>
+                ) : (
                     <TextInput
                         key={field.name}
-                        placeholder={
-                            field.placeholder
-                        }
+                        placeholder={field.placeholder}
                         placeholderTextColor="#555"
-                        value={
-                            formData[
-                                field.name
-                            ] || ""
-                        }
+                        value={formData[field.name] || ""}
                         keyboardType={field.keyboardType}
                         maxLength={field.maxLength}
                         onChangeText={(value) =>
-                            handleChange(
-                                field.name,
-                                value
-                            )
+                            handleChange(field.name, value)
                         }
-                        secureTextEntry={field.secureTextEntry || false}
                         style={{
                             borderWidth: 1,
                             borderRadius: 18,
                             paddingHorizontal: 18,
-                            paddingVertical:16,
+                            paddingVertical: 16,
                             marginBottom: 18,
                             color: "#0f172a",
                             backgroundColor: "#fff",

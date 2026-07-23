@@ -1,4 +1,4 @@
-import { View, KeyboardAvoidingView, ScrollView, Platform, Pressable, Alert, Text } from "react-native";
+import { View, KeyboardAvoidingView, ScrollView, Platform, Pressable, Text } from "react-native";
 
 import NavigationHeader from "../components/NavigationHeader";
 
@@ -11,6 +11,11 @@ import { nanoid } from "nanoid";
 import { useState } from "react";
 
 import { registerPatient } from "@/services/authService";
+
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
 
 export default function Register() {
 
@@ -82,189 +87,258 @@ export default function Register() {
     ];
 
     async function handleSubmit(data) {
+
         if (step === 1) {
             setPatientData(data);
             setStep(2);
             return;
         }
+
         if (data.password !== data.confirmPassword) {
-            alert("Passwords do not match.");
+            showError("Passwords do not match.");
             return;
         }
+
         try {
+
             const registerData = {
                 ...patientData,
                 password: data.password,
                 role: "patient"
             };
+
             console.log(registerData);
+
             await registerPatient(registerData);
-            alert ("Registration Successful");
+
+            showSuccess("Registration Successful");
+
             router.replace("/login");
+
         } catch (error) {
+
             console.log(error);
-            alert("Registration Failed");
+
+            showError("Registration Failed");
         }
     }
 
-    return(
-
+    return (
         <KeyboardAvoidingView
             style={{
-                flex: 1
+                flex: 1,
+                backgroundColor: "#f4f8fc"
             }}
             behavior={
                 Platform.OS === "ios"
                     ? "padding"
-                    : "height"   
+                    : "height"
             }
         >
+            <NavigationHeader
+                title="Patient Registration"
+                showBack
+            />
+
             <ScrollView
                 keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
+                    padding: 20,
                     paddingBottom: 40
                 }}
             >
                 <View
                     style={{
-                        flex: 1,
-                        backgroundColor: "#f4f8fc"
+                        backgroundColor: "#fff",
+                        borderRadius: 24,
+                        padding: 24,
+                        elevation: 5,
+                        shadowColor: "#000",
+                        shadowOpacity: 0.08,
+                        shadowRadius: 10,
+                        shadowOffset: {
+                            width: 0,
+                            height: 4
+                        }
                     }}
                 >
-                    <NavigationHeader
-                        title="Patient Registration"
-                        showBack
-                    />
-                    <View
+                    <Text
                         style={{
-                            padding: 20,
-                            backgroundColor: "#fff"
+                            fontSize: 54,
+                            textAlign: "center",
+                            marginBottom: 12
                         }}
                     >
-                        
+                        🏥
+                    </Text>
+
+                    <Text
+                        style={{
+                            fontSize: 26,
+                            fontWeight: "700",
+                            color: "#0f172a",
+                            textAlign: "center"
+                        }}
+                    >
+                        {
+                            step === 1
+                                ? "Create Account"
+                                : "Secure Your Account"
+                        }
+                    </Text>
+
+                    <Text
+                        style={{
+                            textAlign: "center",
+                            color: "#64748b",
+                            marginTop: 8,
+                            marginBottom: 24
+                        }}
+                    >
+                        {
+                            step === 1
+                                ? "Step 1 of 2 • Personal Details"
+                                : "Step 2 of 2 • Set Password"
+                        }
+                    </Text>
+
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            marginBottom: 28
+                        }}
+                    >
+                        <View
+                            style={{
+                                width: 38,
+                                height: 38,
+                                borderRadius: 19,
+                                backgroundColor: "#2563eb",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}
+                        >
                             <Text
                                 style={{
-                                    fontSize: 26,
+                                    color: "#fff",
                                     fontWeight: "700",
-                                    color: "#0f172a",
-                                    testAlign: "center"
+                                    fontSize: 16
                                 }}
                             >
-                                {
-                                    step === 1
-                                        ? "Create Account"
-                                        : "Secure Your Account"
-                                }
+                                1
                             </Text>
+                        </View>
+
+                        <View
+                            style={{
+                                width: 60,
+                                height: 3,
+                                backgroundColor:
+                                    step === 2
+                                        ? "#2563eb"
+                                        : "#cbd5e1"
+                            }}
+                        />
+
+                        <View
+                            style={{
+                                width: 38,
+                                height: 38,
+                                borderRadius: 19,
+                                backgroundColor:
+                                    step === 2
+                                        ? "#2563eb"
+                                        : "#cbd5e1",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}
+                        >
                             <Text
                                 style={{
-                                    textAlign: "center",
-                                    color: "#64748b",
-                                    marginTop: 8,
-                                    marginBottom: 24
+                                    color: "#fff",
+                                    fontWeight: "700",
+                                    fontSize: 16
                                 }}
                             >
-                                {
-                                    step === 1
-                                        ? "Step 1 of 2 • Personal Details"
-                                        : "Step 2 of 2 • Set Password"
-                                }
+                                2
                             </Text>
-                            <View
-                                style={{
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    marginBottom: 24
-                                }}
-                            >
-                                <View
-                                    style={{
-                                        width: 40,
-                                        height: 6,
-                                        borderRadius: 3,
-                                        backgroundColor: "#2563eb"
-                                    }}
-                                />
-                                <View
-                                    style={{
-                                        width: 40,
-                                        height: 6,
-                                        borderRadius: 3,
-                                        marginLeft: 8,
-                                        backgroundColor:
-                                            step === 2
-                                                ? "#2563eb"
-                                                : "#cbd5e1"
-                                    }}
-                                />
-                            </View>
-                            <DynamicForm
-                                buttonText={
-                                    step === 1
-                                        ? "Next"
-                                        : "Register"
-                                }
-                                fields={
-                                    step === 1
-                                        ? personalFieds
-                                        : passwordFields
-                                }
-                                onSubmit={handleSubmit}
-                            />
-                            {
-                                step === 2 && (
-                                    <Pressable
-                                        onPress={() =>
-                                            setStep(1)
-                                        }
-                                        style={{
-                                            marginTop: 20,
-                                            alignSelf: "center"
-                                        }}
-                                    >
-                                        <Text
-                                            style={{
-                                                color: "#2563eb",
-                                                fontWeight: "700",
-                                                fontSize: 16
-                                            }}
-                                        >
-                                            ← Back
-                                        </Text>
-                                    </Pressable>
-                                )
-                            }
+                        </View>
+                    </View>
+
+                    <DynamicForm
+                        buttonText={
+                            step === 1
+                                ? "Next"
+                                : "Register"
+                        }
+                        fields={
+                            step === 1
+                                ? personalFieds
+                                : passwordFields
+                        }
+                        onSubmit={handleSubmit}
+                    />
+
+                    {
+                        step === 2 && (
                             <Pressable
                                 onPress={() =>
-                                    router.replace("/login")
+                                    setStep(1)
                                 }
                                 style={{
-                                    marginTop: 28,
+                                    marginTop: 20,
                                     alignSelf: "center"
                                 }}
-                                >
-                                <Text
-                                    style={{
-                                        color: "#64748b",
-                                        fontSize: 15
-                                    }}
-                                >
-                                    Already have an account?
-                                </Text>
+                            >
                                 <Text
                                     style={{
                                         color: "#2563eb",
                                         fontWeight: "700",
-                                        textAlign: "center",
-                                        marginTop: 6,
                                         fontSize: 16
                                     }}
                                 >
-                                    Login
+                                    ← Back
                                 </Text>
                             </Pressable>
-                        
+                        )
+                    }
+
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            marginTop: 30
+                        }}
+                    >
+                        <Text
+                            style={{
+                                color: "#64748b",
+                                fontSize: 15
+                            }}
+                        >
+                            Already have an account?
+                        </Text>
+
+                        <Pressable
+                            onPress={() =>
+                                router.replace("/login")
+                            }
+                        >
+                            <Text
+                                style={{
+                                    color: "#2563eb",
+                                    fontWeight: "700",
+                                    marginLeft: 6,
+                                    fontSize: 15
+                                }}
+                            >
+                                Login
+                            </Text>
+                        </Pressable>
                     </View>
                 </View>
             </ScrollView>

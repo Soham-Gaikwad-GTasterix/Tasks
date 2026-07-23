@@ -12,40 +12,57 @@ import NetInfo from "@react-native-community/netinfo";
 
 import { syncOfflineQueue } from "@/services/syncService";
 
+import Toast from "react-native-toast-message";
+
+import { toastConfig } from "@/components/AppToast";
+
+import {
+    Provider as PaperProvider
+} from "react-native-paper";
+
 export default function RootLayout() {
 
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(
-      state => {
-        if (state.isConnected) {
-          syncOfflineQueue();
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(
+            state => {
+                if (state.isConnected) {
+                    syncOfflineQueue();
+                }
+            }
+        );
+
+        return unsubscribe;
+    }, []);
+
+    useEffect(() => {
+        async function checkUpdate() {
+            const update = await Updates.checkForUpdateAsync();
+
+            if (update.isAvailable) {
+                await Updates.fetchUpdateAsync();
+                await Updates.reloadAsync();
+            }
         }
-      }
+
+        checkUpdate();
+    }, []);
+
+    useEffect(() => {
+        requestNotificationPermission();
+    }, []);
+
+    return (
+        <PaperProvider>
+            <Stack
+                screenOptions={{
+                    headerShown: false,
+                    animation: "slide_from_right"
+                }}
+            />
+
+            <Toast
+                config={toastConfig}
+            />
+        </PaperProvider>
     );
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    async function checkUpdate() {
-      const update = await Updates.checkForUpdateAsync();
-      if (update.isAvailable) {
-        await Updates.fetchUpdateAsync();
-        await Updates.reloadAsync();
-      }
-    }
-    checkUpdate();
-  }, []);
-
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
-
-  return (
-    <Stack 
-      screenOptions={{
-        headerShown: false,
-        animation:"slide_from_right"
-      }}
-    />
-  );
 }

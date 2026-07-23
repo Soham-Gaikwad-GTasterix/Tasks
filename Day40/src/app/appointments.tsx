@@ -1,4 +1,4 @@
-import { View, RefreshControl, FlatList, Text } from "react-native";
+import { View, RefreshControl, FlatList, Text, Image } from "react-native";
 
 import { router } from "expo-router";
 
@@ -109,62 +109,191 @@ export default function Appointments() {
                     <View
                         style={{
                             backgroundColor: "#fff",
-                            borderRadius: 22,
-                            padding: 20,
+                            borderRadius: 24,
+                            padding: 18,
                             marginTop: 18,
-                            elevation: 5,
+                            elevation: 6,
                             shadowColor: "#000",
                             shadowOpacity: 0.08,
-                            shadowRadius: 8
+                            shadowRadius: 10,
+                            shadowOffset: {
+                                width: 0,
+                                height: 4
+                            }
                         }}
                     >
-                        <Text
+                        <View
                             style={{
-                                fontSize: 21,
-                                fontWeight: "700",
-                                color: "#0f172a"
+                                flexDirection: "row",
+                                alignItems: "center"
                             }}
                         >
-                            👤 {item.patient}
-                        </Text>
+                            {
+                                item.photo ? (
+                                    <Image
+                                        source={{
+                                            uri: item.photo
+                                        }}
+                                        style={{
+                                            width: 72,
+                                            height: 72,
+                                            borderRadius: 36,
+                                            borderWidth: 3,
+                                            borderColor: "#2563eb"
+                                        }}
+                                    />
+                                ) : (
+                                    <View
+                                        style={{
+                                            width: 72,
+                                            height: 72,
+                                            borderRadius: 36,
+                                            backgroundColor: "#dbeafe",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            borderWidth: 3,
+                                            borderColor: "#2563eb"
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                fontSize: 34
+                                            }}
+                                        >
+                                            👤
+                                        </Text>
+                                    </View>
+                                )
+                            }
 
-                        <Text
-                            style={{
-                                marginTop: 10,
-                                color: "#2563eb",
-                                fontSize: 16,
-                                fontWeight: "600"
-                            }}
-                        >
-                            📅 {item.date}
-                        </Text>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    marginLeft: 16
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontSize: 20,
+                                        fontWeight: "700",
+                                        color: "#0f172a"
+                                    }}
+                                >
+                                    {item.patient}
+                                </Text>
 
-                        <Text
-                            style={{
-                                marginTop: 4,
-                                color: "#475569",
-                                fontSize: 16
-                            }}
-                        >
-                            🕒 {item.time}
-                        </Text>
+                                <Text
+                                    style={{
+                                        marginTop: 5,
+                                        color: "#2563eb",
+                                        fontWeight: "600"
+                                    }}
+                                >
+                                    👨🏻‍⚕️ Dr. {item.doctor}
+                                </Text>
+                            </View>
+
+                            <View
+                                style={{
+                                    backgroundColor:
+                                        item.status === "Scheduled"
+                                            ? "#dbeafe"
+                                            : item.status === "Admitted"
+                                            ? "#dcfce7"
+                                            : item.status === "Completed"
+                                            ? "#f3f4f6"
+                                            : "#fee2e2",
+                                    paddingHorizontal: 12,
+                                    paddingVertical: 6,
+                                    borderRadius: 18
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontWeight: "700",
+                                        fontSize: 13,
+                                        color:
+                                            item.status === "Scheduled"
+                                                ? "#2563eb"
+                                                : item.status === "Admitted"
+                                                ? "#15803d"
+                                                : item.status === "Completed"
+                                                ? "#475569"
+                                                : "#dc2626"
+                                    }}
+                                >
+                                    {item.status}
+                                </Text>
+                            </View>
+                        </View>
 
                         <View
                             style={{
-                                marginTop: 20
+                                height: 1,
+                                backgroundColor: "#e2e8f0",
+                                marginVertical: 18
+                            }}
+                        />
+
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                                marginBottom: 18
                             }}
                         >
-                                <CustomButton
-                                    title="View Details"
-                                    onPress={() =>
-                                        router.push({
-                                            pathname: "/appointment-details",
-                                            params: item
-                                        })
-                                    }
-                                />
-                            
+                            <View>
+                                <Text
+                                    style={{
+                                        color: "#94a3b8",
+                                        fontSize: 12
+                                    }}
+                                >
+                                    Date
+                                </Text>
+
+                                <Text
+                                    style={{
+                                        marginTop: 4,
+                                        fontWeight: "600",
+                                        color: "#0f172a"
+                                    }}
+                                >
+                                    📅 {item.date}
+                                </Text>
+                            </View>
+
+                            <View>
+                                <Text
+                                    style={{
+                                        color: "#94a3b8",
+                                        fontSize: 12
+                                    }}
+                                >
+                                    Time
+                                </Text>
+
+                                <Text
+                                    style={{
+                                        marginTop: 4,
+                                        fontWeight: "600",
+                                        color: "#0f172a"
+                                    }}
+                                >
+                                    🕒 {item.time}
+                                </Text>
+                            </View>
                         </View>
+
+                        <CustomButton
+                            title="View Details"
+                            onPress={() =>
+                                router.push({
+                                    pathname: "/appointment-details",
+                                    params: item
+                                })
+                            }
+                        />
                     </View>
                 )}
                 refreshControl={

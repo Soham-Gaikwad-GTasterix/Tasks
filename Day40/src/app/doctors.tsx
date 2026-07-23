@@ -1,4 +1,4 @@
-import { View, RefreshControl, FlatList, Alert, Text, Image } from "react-native";
+import { View, RefreshControl, FlatList, Text, Image } from "react-native";
 
 import { router } from "expo-router";
 
@@ -9,6 +9,13 @@ import CustomButton from "@/components/CustomButton";
 import { useState, useEffect,useRef } from "react";
 
 import { getDoctors, deleteDoctor } from "@/services/doctorService";
+
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 
 export default function Doctors() {
 
@@ -59,32 +66,37 @@ export default function Doctors() {
         setRefreshing(false);
     };
 
-    function handleDelete(id) {
-        Alert.alert(
-            "Delete Doctor",
-            "Are you sure?",
-            [
-                {
-                    text: "Cancel"
-                },
-                {
-                    text: "Delete",
-                    onPress: async () => {
-                        try {
-                            await deleteDoctor(id);
-                            await loadDoctors();
-                        } catch (error) {
-                            console.log(error);
-                            Alert.alert(
-                                "Error",
-                                "Failed to Delete Doctor"
-                            );
-                        }
-                    }
-                }
-            ]
-        );    
-    }    
+    const [dialogVisible, setDialogVisible] = useState(false);
+
+    const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+
+    async function handleDelete() {
+        try {
+
+            await deleteDoctor(selectedDoctorId);
+
+            await loadDoctors();
+
+            showSuccess(
+                "Doctor deleted successfully."
+            );
+
+        } catch (error) {
+
+            console.log(error);
+
+            showError(
+                "Failed to delete doctor."
+            );
+
+        } finally {
+
+            setDialogVisible(false);
+
+            setSelectedDoctorId(null);
+
+        }
+    }  
 
     return (
         <View
@@ -114,13 +126,17 @@ export default function Doctors() {
                     <View
                         style={{
                             backgroundColor: "#fff",
-                            borderRadius: 22,
+                            borderRadius: 24,
                             padding: 18,
                             marginTop: 18,
-                            elevation: 5,
+                            elevation: 6,
                             shadowColor: "#000",
                             shadowOpacity: 0.08,
-                            shadowRadius: 8
+                            shadowRadius: 10,
+                            shadowOffset: {
+                                width: 0,
+                                height: 4
+                            }
                         }}
                     >
                         <View
@@ -136,30 +152,29 @@ export default function Doctors() {
                                             uri: item.photo
                                         }}
                                         style={{
-                                            width: 72,
-                                            height: 72,
-                                            borderRadius: 36,
+                                            width: 76,
+                                            height: 76,
+                                            borderRadius: 38,
                                             borderWidth: 3,
-                                            borderColor: "#2563eb",
-                                            backgroundColor: "#dbeafe"
+                                            borderColor: "#2563eb"
                                         }}
                                     />
                                 ) : (
                                     <View
                                         style={{
-                                            width: 72,
-                                            height: 72,
-                                            borderRadius: 36,
-                                            borderWidth: 3,
-                                            borderColor: "#2563eb",
+                                            width: 76,
+                                            height: 76,
+                                            borderRadius: 38,
                                             backgroundColor: "#dbeafe",
                                             justifyContent: "center",
-                                            alignItems: "center"
+                                            alignItems: "center",
+                                            borderWidth: 3,
+                                            borderColor: "#2563eb"
                                         }}
                                     >
                                         <Text
                                             style={{
-                                                fontSize: 34
+                                                fontSize: 36
                                             }}
                                         >
                                             👨🏻‍⚕️
@@ -170,13 +185,13 @@ export default function Doctors() {
 
                             <View
                                 style={{
-                                    marginLeft: 16,
-                                    flex: 1
+                                    flex: 1,
+                                    marginLeft: 16
                                 }}
                             >
                                 <Text
                                     style={{
-                                        fontSize: 20,
+                                        fontSize: 21,
                                         fontWeight: "700",
                                         color: "#0f172a"
                                     }}
@@ -186,7 +201,7 @@ export default function Doctors() {
 
                                 <Text
                                     style={{
-                                        marginTop: 6,
+                                        marginTop: 5,
                                         color: "#2563eb",
                                         fontSize: 16,
                                         fontWeight: "600"
@@ -200,8 +215,7 @@ export default function Doctors() {
                         <View
                             style={{
                                 flexDirection: "row",
-                                gap: 10,
-                                marginTop: 20
+                                gap: 10
                             }}
                         >
                             <View style={{ flex: 1 }}>
@@ -222,7 +236,10 @@ export default function Doctors() {
                                 <CustomButton
                                     title="Remove"
                                     backgroundColor="#dc2626"
-                                    onPress={() => handleDelete(item.id)}
+                                    onPress={() => {
+                                        setSelectedDoctorId(item.id);
+                                        setDialogVisible(true);
+                                    }}
                                 />
                             </View>
                         </View>
@@ -272,7 +289,20 @@ export default function Doctors() {
                         </Text>
                     </View>
                 }
-            />    
+            />  
+
+            <ConfirmationDialog
+                visible={dialogVisible}
+                title="Delete Doctor"
+                message="Are you sure you want to delete this doctor?"
+                confirmText="Delete"
+                confirmColor="#dc2626"
+                onCancel={() => {
+                    setDialogVisible(false);
+                    setSelectedDoctorId(null);
+                }}
+                onConfirm={handleDelete}
+            />  
 
         </View>
     );

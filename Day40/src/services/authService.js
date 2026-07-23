@@ -35,3 +35,8 @@ export async function getPatientById(patientUserId) {
     return response.data;
 
 }
+
+export async function getUsers() {
+    const response = await api.get("/users");
+    return response.data;
+}

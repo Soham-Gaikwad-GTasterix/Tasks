@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Image, KeyboardAvoidingView, ScrollView, Platform, Alert, Pressable } from "react-native";
+import { View, Text, TextInput, Image, KeyboardAvoidingView, ScrollView, Platform, Pressable } from "react-native";
 
 import NavigationHeader from "../components/NavigationHeader";
 
@@ -16,6 +16,11 @@ import { useState, useEffect } from "react";
 
 import { getPatientById } from "@/services/authService";
 
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
 export default function AdmitPatient() {
 
     const { appointment } = useLocalSearchParams();
@@ -27,6 +32,10 @@ export default function AdmitPatient() {
     const [selectedFloor, setSelectedFloor] = useState("General");
 
     const [roomNo, setRoomNo] = useState("");
+
+    const [bedNo, setBedNo] = useState("");
+
+    const [occupiedSemiBeds, setOccupiedSemiBeds] = useState({});
 
     const [occupiedRooms, setOccupiedRooms] = useState([]);
 
@@ -61,15 +70,32 @@ export default function AdmitPatient() {
 
                 const patients = await getPatients();
 
-                setOccupiedRooms(
-                    patients
-                        .filter(
-                            p => p.status === "Admitted"
-                        )
-                        .map(
-                            p => p.roomNo
-                        )
+                const admitted = patients.filter(
+                    p => p.status === "Admitted"
                 );
+
+                setOccupiedRooms(
+                    admitted.map(
+                        p => p.roomNo
+                    )
+                );
+
+                const semi = {};
+
+                admitted.forEach(patient => {
+
+                    if (patient.roomNo.startsWith("S")) {
+
+                        if (!semi[patient.roomNo]) {
+                            semi[patient.roomNo] = [];
+                        }
+
+                        semi[patient.roomNo].push(patient.bedNo);
+                    }
+
+                });
+
+                setOccupiedSemiBeds(semi);
 
             } catch (error) {
 
@@ -89,8 +115,7 @@ export default function AdmitPatient() {
             count: 50
         },
         Semi: {
-            prefix: 1,
-            count: 20
+            custom: true
         },
         ICU: {
             prefix: 2,
@@ -106,44 +131,61 @@ export default function AdmitPatient() {
         }
     };
 
+    const semiRooms = [
+        { room: "101", beds: ["A", "B"] },
+        { room: "102", beds: ["A", "B"] },
+        { room: "103", beds: ["A", "B"] },
+        { room: "104", beds: ["A", "B"] },
+        { room: "105", beds: ["A", "B"] },
+
+        { room: "106", beds: ["A", "B", "C"] },
+        { room: "107", beds: ["A", "B", "C"] },
+        { room: "108", beds: ["A", "B", "C"] },
+        { room: "109", beds: ["A", "B", "C"] },
+        { room: "110", beds: ["A", "B", "C"] }
+    ];
+
     const currentFloor =
         roomConfig[selectedFloor] || roomConfig.General;
 
-    const rooms = Array.from(
-        {
-            length: currentFloor.count
-        },
-        (_, index) =>
-            `${currentFloor.prefix}${String(index + 1).padStart(2, "0")}`
-    );
+    const rooms =
+        selectedFloor === "Semi"
+            ? semiRooms
+            : Array.from(
+                {
+                    length: currentFloor.count
+                },
+                (_, index) =>
+                    `${currentFloor.prefix}${String(index + 1).padStart(2, "0")}`
+            );
 
     async function handleAdmit() {
 
         setLoading(true);
 
         if (!disease.trim()) {
-            Alert.alert(
-                "Disease Field Required",
-                "Please enter the diagnosed disease."
-            );
+            showError("Please enter the diagnosed disease.");
             setLoading(false);
             return;
         }
 
         if (!roomNo.trim()) {
-            Alert.alert(
-                "Room Number Required",
-                "Please enter the room number."
-            );
+            showError("Please select a room.");
+            setLoading(false);
+            return;
+        }
+
+        if (
+            selectedFloor === "Semi" &&
+            !bedNo
+        ) {
+            showError("Please select a bed.");
             setLoading(false);
             return;
         }
 
         if (appointmentData.status === "Completed") {
-            Alert.alert(
-                "Already Completed",
-                "This appointment has already been completed."
-            );
+            showError("This appointment has already been completed.");
             setLoading(false);
             return;
         }
@@ -152,20 +194,65 @@ export default function AdmitPatient() {
         
         const patients = await getPatients();
 
-        const roomOccupied = patients.find(
-            p =>
-                p.roomNo === roomNo &&
-                p.status === "Admitted"
-        );
+        if (selectedFloor !== "Semi") {
 
-        if (roomOccupied) {
-            Alert.alert(
-                "Room Occupied",
-                `Room ${roomNo} is already assigned to ${roomOccupied.name}.`
+            const roomOccupied = patients.find(
+                p =>
+                    p.roomNo === roomNo &&
+                    p.status === "Admitted"
             );
 
-            setLoading(false);
-            return;
+            if (roomOccupied) {
+
+                showError(
+                    `Room ${roomNo} is already assigned to ${roomOccupied.name}.`
+                );
+
+                setLoading(false);
+
+                return;
+            }
+
+        } else {
+
+            const roomPatients =
+                patients.filter(
+                    p =>
+                        p.roomNo === roomNo &&
+                        p.status === "Admitted"
+                );
+
+            const limit =
+                roomNo <= "105"
+                    ? 2
+                    : 3;
+
+            if (roomPatients.length >= limit) {
+
+                showError(
+                    "This room is already full."
+                );
+
+                setLoading(false);
+
+                return;
+            }
+
+            if (
+                roomPatients.some(
+                    p => p.bedNo === bedNo
+                )
+            ) {
+
+                showError(
+                    "Selected bed is already occupied."
+                );
+
+                setLoading(false);
+
+                return;
+            }
+
         }
 
         const alreadyAdmitted = patients.find(
@@ -173,11 +260,7 @@ export default function AdmitPatient() {
         );
 
         if (alreadyAdmitted) {
-            Alert.alert(
-                "Already Admitted",
-                "This appointment has already been admitted."
-            );
-
+            showError("This appointment has already been admitted.");
             setLoading(false);
             return;
         }
@@ -198,6 +281,11 @@ export default function AdmitPatient() {
             doctorName:appointmentData.doctor,
             disease,
             roomNo,
+            roomType: selectedFloor,
+            bedNo:
+                selectedFloor === "Semi"
+                    ? bedNo
+                    : "",
             admissionDate:
                 new Date()
                     .toISOString()
@@ -217,26 +305,17 @@ export default function AdmitPatient() {
         
         setLoading(false);
 
-        Alert.alert(
-            "Patient Admitted",
-            "The patient has been admitted successfully.",
-            [
-                {
-                    text: "OK",
-                    onPress: () =>
-                        router.replace(
-                            "/(doctor-tabs)/patients"
-                        )
-                }
-            ]
-        );
+        showSuccess("Patient admitted successfully.");
+
+        setTimeout(() => {
+            router.replace(
+                "/(doctor-tabs)/patients"
+            );
+        }, 1200);
     } catch (error) {
         console.log(error);
 
-        Alert.alert(
-            "Error",
-            "Failed to admit patient."
-        );
+        showError("Failed to admit patient.");
 
         setLoading(false);
     }
@@ -503,6 +582,7 @@ export default function AdmitPatient() {
                                         onPress={() => {
                                             setSelectedFloor(floor);
                                             setRoomNo("");
+                                            setBedNo("");
                                         }}
                                         style={{
                                             flex: 1,
@@ -531,91 +611,294 @@ export default function AdmitPatient() {
                                 ))}
                             </View>
 
-                            <Text
-                                style={{
-                                    color: "#64748b",
-                                    fontSize: 14,
-                                    marginBottom: 15,
-                                    textAlign: "center"
-                                }}
-                            >
-                                {
-                                    occupiedRooms.filter(room =>
-                                        room.startsWith(
-                                            String(currentFloor.prefix)
-                                        )
-                                    ).length
-                                } Occupied • {
-                                    currentFloor.count -
-                                    occupiedRooms.filter(room =>
-                                        room.startsWith(
-                                            String(currentFloor.prefix)
-                                        )
-                                    ).length
-                                } Available
-                            </Text>
+                            {
+                                selectedFloor !== "Semi" ? (
 
-                            <View
-                                style={{
-                                    flexDirection: "row",
-                                    flexWrap: "wrap",
-                                    justifyContent: "space-between",
-                                    marginBottom: 20
-                                }}
-                            >
-                                {rooms.map(room => {
-                                    const occupied =
-                                        occupiedRooms.includes(room);
-
-                                    const selected =
-                                        roomNo === room;
-
-                                    return (
-                                        <Pressable
-                                            key={room}
-                                            disabled={occupied}
-                                            onPress={() =>
-                                                setRoomNo(room)
-                                            }
+                                    <>
+                                        <Text
                                             style={{
-                                                width: "18%",
-                                                aspectRatio: 1,
-                                                marginBottom: 10,
-                                                borderRadius: 12,
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                backgroundColor:
-                                                    occupied
-                                                        ? "#fecaca"
-                                                        : selected
-                                                        ? "#2563eb"
-                                                        : "#fff",
-                                                borderWidth: 1,
-                                                borderColor:
-                                                    occupied
-                                                        ? "#dc2626"
-                                                        : selected
-                                                        ? "#2563eb"
-                                                        : "#cbd5e1"
+                                                color: "#64748b",
+                                                fontSize: 14,
+                                                marginBottom: 15,
+                                                textAlign: "center"
                                             }}
                                         >
-                                            <Text
-                                                style={{
-                                                    fontWeight: "700",
-                                                    color:
-                                                        occupied
-                                                            ? "#b91c1c"
-                                                            : selected
-                                                            ? "#fff"
-                                                            : "#0f172a"
-                                                }}
-                                            >
-                                                {room}
-                                            </Text>
-                                        </Pressable>
-                                    );
-                                })}
-                            </View>
+                                            {
+                                                occupiedRooms.filter(room =>
+                                                    room.startsWith(
+                                                        String(currentFloor.prefix)
+                                                    )
+                                                ).length
+                                            } Occupied • {
+                                                currentFloor.count -
+                                                occupiedRooms.filter(room =>
+                                                    room.startsWith(
+                                                        String(currentFloor.prefix)
+                                                    )
+                                                ).length
+                                            } Available
+                                        </Text>
+
+                                        <View
+                                            style={{
+                                                flexDirection: "row",
+                                                flexWrap: "wrap",
+                                                justifyContent: "space-between",
+                                                marginBottom: 20
+                                            }}
+                                        >
+                                            {rooms.map(room => {
+
+                                                const occupied =
+                                                    occupiedRooms.includes(room);
+
+                                                const selected =
+                                                    roomNo === room;
+
+                                                return (
+
+                                                    <Pressable
+                                                        key={room}
+                                                        disabled={occupied}
+                                                        onPress={() =>
+                                                            setRoomNo(room)
+                                                        }
+                                                        style={{
+                                                            width: "18%",
+                                                            aspectRatio: 1,
+                                                            marginBottom: 10,
+                                                            borderRadius: 12,
+                                                            justifyContent: "center",
+                                                            alignItems: "center",
+                                                            backgroundColor:
+                                                                occupied
+                                                                    ? "#fecaca"
+                                                                    : selected
+                                                                    ? "#2563eb"
+                                                                    : "#fff",
+                                                            borderWidth: 1,
+                                                            borderColor:
+                                                                occupied
+                                                                    ? "#dc2626"
+                                                                    : selected
+                                                                    ? "#2563eb"
+                                                                    : "#cbd5e1"
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                fontWeight: "700",
+                                                                color:
+                                                                    occupied
+                                                                        ? "#b91c1c"
+                                                                        : selected
+                                                                        ? "#fff"
+                                                                        : "#0f172a"
+                                                            }}
+                                                        >
+                                                            {room}
+                                                        </Text>
+
+                                                    </Pressable>
+
+                                                );
+
+                                            })}
+                                        </View>
+
+                                    </>
+
+                                ) : (
+
+                                    <>
+                                        <View
+                                            style={{
+                                                flexDirection: "row",
+                                                flexWrap: "wrap",
+                                                justifyContent: "space-between",
+                                                marginBottom: 20
+                                            }}
+                                        >
+
+                                            {semiRooms.map(room => {
+
+                                                const occupied =
+                                                    occupiedSemiBeds[
+                                                        room.room
+                                                    ] || [];
+
+                                                const full =
+                                                    occupied.length ===
+                                                    room.beds.length;
+
+                                                return (
+
+                                                    <Pressable
+                                                        key={room.room}
+                                                        disabled={full}
+                                                        onPress={() => {
+
+                                                            setRoomNo(room.room);
+
+                                                            setBedNo("");
+
+                                                        }}
+                                                        style={{
+                                                            width: "31%",
+                                                            paddingVertical: 15,
+                                                            marginBottom: 12,
+                                                            borderRadius: 14,
+                                                            backgroundColor:
+                                                                roomNo === room.room
+                                                                    ? "#2563eb"
+                                                                    : full
+                                                                    ? "#fecaca"
+                                                                    : "#fff",
+                                                            borderWidth: 1,
+                                                            borderColor:
+                                                                roomNo === room.room
+                                                                    ? "#2563eb"
+                                                                    : "#cbd5e1",
+                                                            alignItems: "center"
+                                                        }}
+                                                    >
+
+                                                        <Text
+                                                            style={{
+                                                                fontWeight: "700",
+                                                                color:
+                                                                    roomNo === room.room
+                                                                        ? "#fff"
+                                                                        : "#000"
+                                                            }}
+                                                        >
+                                                            {room.room}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                marginTop: 6,
+                                                                color:
+                                                                    roomNo === room.room
+                                                                        ? "#fff"
+                                                                        : "#64748b"
+                                                            }}
+                                                        >
+                                                            {occupied.length}/{room.beds.length} Beds
+                                                        </Text>
+
+                                                    </Pressable>
+
+                                                );
+
+                                            })}
+
+                                        </View>
+
+                                        {
+                                            roomNo !== "" && (
+
+                                                <>
+                                                    <Text
+                                                        style={{
+                                                            fontWeight: "700",
+                                                            marginBottom: 12,
+                                                            color: "#475569"
+                                                        }}
+                                                    >
+                                                        Select Bed
+                                                    </Text>
+
+                                                    <View
+                                                        style={{
+                                                            flexDirection: "row",
+                                                            justifyContent: "space-around",
+                                                            marginBottom: 20
+                                                        }}
+                                                    >
+
+                                                        {
+                                                            semiRooms
+                                                                .find(
+                                                                    r =>
+                                                                        r.room ===
+                                                                        roomNo
+                                                                )
+                                                                ?.beds.map(
+                                                                    bed => {
+
+                                                                        const occupied =
+                                                                            (
+                                                                                occupiedSemiBeds[
+                                                                                    roomNo
+                                                                                ] || []
+                                                                            ).includes(
+                                                                                bed
+                                                                            );
+
+                                                                        return (
+
+                                                                            <Pressable
+                                                                                key={bed}
+                                                                                disabled={
+                                                                                    occupied
+                                                                                }
+                                                                                onPress={() =>
+                                                                                    setBedNo(
+                                                                                        bed
+                                                                                    )
+                                                                                }
+                                                                                style={{
+                                                                                    width: 70,
+                                                                                    height: 70,
+                                                                                    borderRadius: 35,
+                                                                                    justifyContent: "center",
+                                                                                    alignItems: "center",
+                                                                                    backgroundColor:
+                                                                                        occupied
+                                                                                            ? "#fecaca"
+                                                                                            : bedNo ===
+                                                                                            bed
+                                                                                            ? "#2563eb"
+                                                                                            : "#fff",
+                                                                                    borderWidth: 1,
+                                                                                    borderColor:
+                                                                                        "#cbd5e1"
+                                                                                }}
+                                                                            >
+
+                                                                                <Text
+                                                                                    style={{
+                                                                                        fontWeight:
+                                                                                            "700",
+                                                                                        color:
+                                                                                            occupied
+                                                                                                ? "#dc2626"
+                                                                                                : bedNo ===
+                                                                                                bed
+                                                                                                ? "#fff"
+                                                                                                : "#000"
+                                                                                    }}
+                                                                                >
+                                                                                    {bed}
+                                                                                </Text>
+
+                                                                            </Pressable>
+
+                                                                        );
+
+                                                                    }
+                                                                )
+                                                        }
+
+                                                    </View>
+                                                </>
+                                            )
+                                        }
+
+                                    </>
+                                )
+                            }
 
                             <View
                                 style={{
@@ -639,7 +922,9 @@ export default function AdmitPatient() {
                             >
                                 {
                                     roomNo
-                                        ? `Selected Room: ${roomNo}`
+                                        ? selectedFloor === "Semi"
+                                            ? `Selected : ${roomNo} (${bedNo || "No Bed"})`
+                                            : `Selected Room : ${roomNo}`
                                         : "No Room Selected"
                                 }
                             </Text>

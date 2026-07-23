@@ -1,10 +1,13 @@
-import { View, RefreshControl, FlatList, Text, Alert } from "react-native";
+import { View, RefreshControl, FlatList, Text } from "react-native";
 
 import ScreenTitle from "@/components/ScreenTitle";
 
 import { useEffect, useState, useRef } from "react";
 
-import { getAppointments, updateAppointment } from "@/services/appointmentService";
+import {
+    getAppointments,
+    updateAppointment
+} from "@/services/appointmentService";
 
 import { getUser } from "@/storage/authStorage";
 
@@ -12,10 +15,24 @@ import { router } from "expo-router";
 
 import CustomButton from "@/components/CustomButton";
 
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
 export default function Schedule() {
+
     const [appointments, setAppointments] = useState([]);
 
     const [visibleIds, setVisibleIds] = useState([]);
+
+    const [dialogVisible, setDialogVisible] = useState(false);
+
+    const [dialogType, setDialogType] = useState(null);
+
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
 
     const onViewableItemChanged = useRef(
         ({ viewableItems }) => {
@@ -37,7 +54,9 @@ export default function Schedule() {
     };
 
     async function loadAppointments() {
+
         try {
+
             const user = await getUser();
 
             const data = await getAppointments();
@@ -50,10 +69,16 @@ export default function Schedule() {
             };
 
             const myAppointments = data
-                .filter(item => item.doctorId === user.doctorId)
+                .filter(
+                    item =>
+                        item.doctorId ===
+                        user.doctorId
+                )
                 .sort((a, b) => {
+
                     const statusDiff =
-                        statusOrder[a.status] - statusOrder[b.status];
+                        statusOrder[a.status] -
+                        statusOrder[b.status];
 
                     if (statusDiff !== 0) {
                         return statusDiff;
@@ -63,11 +88,15 @@ export default function Schedule() {
                         new Date(`${a.date}T${a.time}`) -
                         new Date(`${b.date}T${b.time}`)
                     );
+
                 });
 
             setAppointments(myAppointments);
+
         } catch (error) {
+
             console.log(error);
+
         }
     }
 
@@ -78,14 +107,19 @@ export default function Schedule() {
     const [refreshing, setRefreshing] = useState(false);
 
     async function onRefresh() {
+
         setRefreshing(true);
+
         await loadAppointments();
+
         setRefreshing(false);
+
     }
 
     async function handleStatusChange(
         appointment
-     ) {
+    ) {
+
         if (appointment.status !== "Scheduled") {
             return;
         }
@@ -95,76 +129,46 @@ export default function Schedule() {
         );
 
         if (appointmentDateTime > new Date()) {
-            Alert.alert(
-                "Appointment Not Started",
+
+            showError(
                 "You can complete an appointment only after its scheduled time."
             );
+
             return;
         }
 
-        Alert.alert(
-            "Appointment Finished",
-            "Would you like to admit this patient?",
-            [
-                {
-                    text: "No",
-                    onPress: async () => {
-                        try {
-                            await updateAppointment(
-                                appointment.id,
-                                {
-                                    ...appointment,
-                                    status: "Completed"
-                                }
-                            );
-                            await loadAppointments();
-                        } catch (error) {
-                            console.log(error);
-                        }
-                    }
-                },
-                {
-                    text: "Yes",
-                    onPress: () => {
-                        router.push({
-                            pathname: "../admit-patient",
-                            params: {
-                                appointment: JSON.stringify(
-                                    appointment
-                                )
-                            }
-                        });
-                    }
-                }
-            ]
-        );
+        setSelectedAppointment(appointment);
+        setDialogType("complete");
+        setDialogVisible(true);
     }
 
-    async function handleCancel(appointment) {
-        const apointmentDateTime = new Date(
-            `${appointment.date}T${appointment.time}`
-        );
+    async function handleCancel(
+        appointment
+    ) {
+
+        const appointmentDateTime =
+            new Date(
+                `${appointment.date}T${appointment.time}`
+            );
+
         const now = new Date();
-        const diffHours = (apointmentDateTime - now) / (1000 * 60 * 60);
+
+        const diffHours =
+            (appointmentDateTime - now) /
+            (1000 * 60 * 60);
+
         if (diffHours < 3) {
-            Alert.alert(
-                "Cannot Cancel",
+
+            showError(
                 "Appointments cannot be cancelled within 3 hours."
             );
+
             return;
         }
-        try {
-            await updateAppointment(
-                appointment.id,
-                {
-                    ...appointment,
-                    status: "Cancelled"
-                }
-            );
-            await loadAppointments();
-        } catch (error) {
-            console.log(error);
-        }
+
+        setSelectedAppointment(appointment);
+        setDialogType("cancel");
+        setDialogVisible(true);
     }
 
     return (
@@ -386,6 +390,104 @@ export default function Schedule() {
                     </View>
                 }
             />
+
+            <ConfirmationDialog
+                visible={dialogVisible}
+                title={
+                    dialogType === "cancel"
+                        ? "Cancel Appointment"
+                        : "Appointment Finished"
+                }
+                message={
+                    dialogType === "cancel"
+                        ? "Are you sure you want to cancel this appointment?"
+                        : "Would you like to admit this patient?"
+                }
+                confirmText={
+                    dialogType === "cancel"
+                        ? "Yes"
+                        : "Yes"
+                }
+                confirmColor="#dc2626"
+                onCancel={async () => {
+                    if (dialogType === "complete") {
+                        try {
+                            await updateAppointment(
+                                selectedAppointment.id,
+                                {
+                                    ...selectedAppointment,
+                                    status: "Completed"
+                                }
+                            );
+
+                            showSuccess(
+                                "Appointment completed successfully."
+                            );
+
+                            await loadAppointments();
+
+                        } catch (error) {
+
+                            console.log(error);
+
+                            showError(
+                                "Failed to complete appointment."
+                            );
+                        }
+                    }
+
+                    setDialogVisible(false);
+                    setSelectedAppointment(null);
+                    setDialogType(null);
+                }}
+                onConfirm={async () => {
+
+                    if (dialogType === "cancel") {
+
+                        try {
+
+                            await updateAppointment(
+                                selectedAppointment.id,
+                                {
+                                    ...selectedAppointment,
+                                    status: "Cancelled"
+                                }
+                            );
+
+                            showSuccess(
+                                "Appointment cancelled successfully."
+                            );
+
+                            await loadAppointments();
+
+                        } catch (error) {
+
+                            console.log(error);
+
+                            showError(
+                                "Failed to cancel appointment."
+                            );
+                        }
+
+                    } else {
+
+                        router.push({
+                            pathname: "../admit-patient",
+                            params: {
+                                appointment: JSON.stringify(
+                                    selectedAppointment
+                                )
+                            }
+                        });
+
+                    }
+
+                    setDialogVisible(false);
+                    setSelectedAppointment(null);
+                    setDialogType(null);
+                }}
+            />
+
         </View>
     );
 }

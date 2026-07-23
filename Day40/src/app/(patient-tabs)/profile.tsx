@@ -1,4 +1,4 @@
-import { View, Text, Image, Alert, Pressable, ScrollView } from "react-native";
+import { View, Text, Image, Pressable, ScrollView } from "react-native";
 
 import ScreenTitle from "../../components/ScreenTitle";
 
@@ -18,6 +18,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { getPatients } from "@/services/patientService";
 
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+
+import {
+    showSuccess,
+    showError
+} from "@/services/toastService";
+
 export default function PatientProfile() {
 
     const [patient, setPatient] = useState(null);
@@ -25,6 +32,8 @@ export default function PatientProfile() {
     const [photo, setPhoto] = useState(null);
 
     const [showCamera, setShowCamera] = useState(false);
+
+    const [dialogVisible, setDialogVisible] = useState(false);
 
     const cameraRef = useRef(null);
 
@@ -80,8 +89,7 @@ export default function PatientProfile() {
         if (!permission?.granted) {
             const response = await requestPermission();
             if (!response.granted) {
-                Alert.alert(
-                    "Permission Required",
+                showError(
                     "Camera access is required to take photos."
                 );
                 return;
@@ -100,39 +108,20 @@ export default function PatientProfile() {
             });
             await savePhoto(photoData.uri);
             setShowCamera(false);
-            Alert.alert(
-                "Success",
-                "Photo captured successfully"
+            showSuccess(
+                "Photo captured successfully."
             );
         } catch (error) {
-            Alert.alert(
-                "Error",
-                "Failed to capture photo"
+            showError(
+                "Failed to capture photo."
             );
         }
     }
 
     async function handleLogout() {
-        Alert.alert(
-            "Logout",
-            "Are you sure you want to logout?",
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "Logout",
-                    style: "destructive",
-                    onPress: async () => {
-                        await logout();
-                        router.replace(
-                            "/login"
-                        );
-                    }
-                }
-            ]
-        );
+        await logout();
+
+        router.replace("/login");
     }
 
     if (showCamera) {
@@ -463,11 +452,22 @@ export default function PatientProfile() {
                 >
                     <CustomButton
                         title="Logout"
-                        onPress={handleLogout}
+                        onPress={() => setDialogVisible(true)}
                         backgroundColor="#dc2626"
                     />
                 </View>
             </ScrollView>
+
+            <ConfirmationDialog
+                visible={dialogVisible}
+                title="Logout"
+                message="Are you sure you want to logout?"
+                confirmText="Logout"
+                confirmColor="#dc2626"
+                onCancel={() => setDialogVisible(false)}
+                onConfirm={handleLogout}
+            />
+
         </View>
     );
 }
